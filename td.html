@@ -74,7 +74,7 @@ nxt = function(){
     cur.classList.toggle('active')
     items[idx%items.length].classList.toggle('active')
 }
-const now = setInterval(nxt, 150)
+const now = setInterval(nxt, 120)
 const btn = document.querySelector('#btn')
 btn.addEventListener('click', function (){
     clearInterval(now)
