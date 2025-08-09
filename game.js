@@ -14,11 +14,14 @@ class Game {
         this.canvas.width = 800;
         this.canvas.height = 600;
         
+        // 화면 크기에 따른 물리 설정 초기화
+        this.updatePhysicsForScreenSize();
+        
         // 게임 상태
         this.state = GameState.READY;
         this.score = 0;
         this.bestScore = localStorage.getItem('paperPlane_bestScore') || 0;
-        this.selectedDifficulty = 'easy';  // 기본 난이도
+        this.selectedDifficulty = 'normal';  // 기본 난이도
         
         // 게임 객체들
         this.plane = new Plane(150, this.canvas.height / 2);
@@ -53,10 +56,12 @@ class Game {
         // 게임 조작 이벤트
         this.setupControls();
         
+        // 창 크기 변경 이벤트
+        this.setupResizeHandler();
+        
         // 게임 루프 시작
         this.gameLoop();
-        
-        console.log('게임 초기화 완료!');
+    
     }
     
     // 난이도 선택 설정
@@ -74,7 +79,6 @@ class Game {
                 // 선택된 난이도 저장
                 this.selectedDifficulty = button.dataset.difficulty;
                 this.onDifficultyChanged();
-                console.log('난이도 선택:', this.selectedDifficulty);
             });
         });
     }
@@ -121,6 +125,9 @@ class Game {
     
     // 게임 시작
     startGame() {
+        // 화면 크기에 따른 물리 설정 업데이트
+        this.updatePhysicsForScreenSize();
+        
         // 선택된 난이도 적용
         Physics.setDifficulty(this.selectedDifficulty);
         
@@ -140,8 +147,10 @@ class Game {
         // 게임 시작 사운드
         playStartSound();
         
+        // 최고 점수 표시 최신화
+        this.updateBestScoreDisplay();
+        
         const difficultyName = Physics.getDifficultySettings().name;
-        console.log(`게임 시작! 난이도: ${difficultyName}`);
     }
     
     // 게임 재시작
@@ -150,7 +159,9 @@ class Game {
         this.startScreen.style.display = 'block';
         this.state = GameState.READY;
         
-        console.log('게임 준비 상태로 전환');
+        // 최고 점수 표시 업데이트
+        this.updateBestScoreDisplay();
+        
     }
     
     // 게임 오버
@@ -159,15 +170,17 @@ class Game {
         
         // 난이도별 최고 점수 키 생성
         const bestScoreKey = `paperPlane_bestScore_${this.selectedDifficulty}`;
-        const currentBest = localStorage.getItem(bestScoreKey) || 0;
+        const currentBest = parseInt(localStorage.getItem(bestScoreKey) || 0);
         
-        // 최고 점수 업데이트
+        // 최고 점수 업데이트 (최종 확인)
         let isNewBest = false;
         if (this.score > currentBest) {
             localStorage.setItem(bestScoreKey, this.score);
             isNewBest = true;
-            console.log(`새로운 최고 점수! (${Physics.getDifficultySettings().name})`, this.score);
         }
+        
+        // 최고 점수 UI 최종 업데이트 (실시간 업데이트가 되지 않았을 경우를 대비)
+        this.updateBestScoreDisplay();
         
         // UI 표시
         this.finalScoreElement.textContent = this.score;
@@ -179,7 +192,6 @@ class Game {
         this.gameOverlay.style.display = 'flex';
         document.body.classList.remove('playing');
         
-        console.log(`게임 오버! 점수: ${this.score} (난이도: ${Physics.getDifficultySettings().name})`);
     }
     
     // 게임 업데이트
@@ -223,7 +235,6 @@ class Game {
             );
             playScoreSound();
             
-            console.log('점수 획득!', this.score);
         }
         
         // 트레일 파티클 (종이비행기 뒤에)
@@ -313,6 +324,21 @@ class Game {
     // 점수 업데이트
     updateScore() {
         this.scoreElement.textContent = this.score;
+        
+        // 실시간 최고 점수 체크 및 업데이트
+        this.checkAndUpdateBestScore();
+    }
+    
+    // 실시간 최고 점수 체크 및 업데이트
+    checkAndUpdateBestScore() {
+        const bestScoreKey = `paperPlane_bestScore_${this.selectedDifficulty}`;
+        const currentBest = parseInt(localStorage.getItem(bestScoreKey) || 0);
+        
+        // 현재 점수가 최고 점수를 넘었으면 즉시 업데이트
+        if (this.score > currentBest) {
+            localStorage.setItem(bestScoreKey, this.score);
+            this.updateBestScoreDisplay();
+        }
     }
     
     // 사운드 토글
@@ -327,13 +353,51 @@ class Game {
     // 최고 점수 표시 업데이트
     updateBestScoreDisplay() {
         const bestScoreKey = `paperPlane_bestScore_${this.selectedDifficulty}`;
-        const currentBest = localStorage.getItem(bestScoreKey) || 0;
+        const currentBest = parseInt(localStorage.getItem(bestScoreKey) || 0);
         this.currentBestScoreElement.textContent = currentBest;
     }
     
     // 난이도 변경시 최고 점수 업데이트
     onDifficultyChanged() {
         this.updateBestScoreDisplay();
+    }
+    
+    // 화면 크기에 따른 물리 설정 업데이트
+    updatePhysicsForScreenSize() {
+        // 현재 캔버스의 실제 표시 크기 확인
+        const rect = this.canvas.getBoundingClientRect();
+        const displayWidth = rect.width;
+        const displayHeight = rect.height;
+        
+        // 물리 엔진에 화면 크기 정보 전달
+        Physics.setScreenType(displayWidth, displayHeight);
+        
+    }
+    
+    // 창 크기 변경 이벤트 설정
+    setupResizeHandler() {
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            // 연속적인 리사이즈 이벤트 방지
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.updatePhysicsForScreenSize();
+                // 게임이 진행 중이 아닐 때만 난이도 재적용
+                if (this.state !== GameState.PLAYING) {
+                    Physics.setDifficulty(this.selectedDifficulty);
+                }
+            }, 100);
+        });
+        
+        // 화면 방향 변경 감지 (모바일)
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                this.updatePhysicsForScreenSize();
+                if (this.state !== GameState.PLAYING) {
+                    Physics.setDifficulty(this.selectedDifficulty);
+                }
+            }, 300);
+        });
     }
     
     // 게임 루프
@@ -346,6 +410,5 @@ class Game {
 
 // 게임 시작
 window.addEventListener('load', () => {
-    console.log('페이지 로드 완료, 게임 초기화 중...');
     new Game();
 });
