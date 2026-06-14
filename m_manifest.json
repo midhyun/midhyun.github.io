@@ -1,0 +1,19 @@
+{
+  "name": "법인카드관리 백오피스",
+  "short_name": "법인카드",
+  "description": "야근 식대 기록 및 비용처리 CSV 출력 도구",
+  "start_url": "./m_expense_ledger",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f7f0dd",
+  "theme_color": "#1f7a4d",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "./visa_payment_method_card_icon_142729.ico",
+      "sizes": "any",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ]
+}
