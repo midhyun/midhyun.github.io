@@ -10,7 +10,7 @@
  *     로컬 테스트 시: npx serve . 또는 VS Code Live Server를 사용하세요.
  */
 
-const CACHE_NAME = 'overtime-ledger-v4';
+const CACHE_NAME = 'overtime-ledger-v5';
 
 // 캐시할 정적 자산 목록
 const PRECACHE_ASSETS = [
@@ -19,7 +19,11 @@ const PRECACHE_ASSETS = [
     './expense_ledger.html',
     './m_expense_ledger.html',
     './manifest.json',
+    './m_manifest.json',
     './favicon.ico',
+    './icon-192.png',
+    './icon-512.png',
+    './icon-180.png',
 ];
 
 // ── 설치: 정적 자산 사전 캐시
