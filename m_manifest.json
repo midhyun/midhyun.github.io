@@ -5,8 +5,8 @@
   "start_url": "./m_expense_ledger",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f7f0dd",
-  "theme_color": "#1f7a4d",
+  "background_color": "#eef2f8",
+  "theme_color": "#15466e",
   "lang": "ko",
   "icons": [
     { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

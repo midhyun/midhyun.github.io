@@ -7,7 +7,7 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/icon-180.png">
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#1f7a4d">
+    <meta name="theme-color" content="#15466e">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -15,12 +15,12 @@
     <title>법인카드관리 백오피스</title>
     <style>
         :root {
-            --ink: #162019;
-            --muted: #6f7b72;
-            --line: #dce5da;
-            --paper: #fffaf0;
-            --leaf: #1f7a4d;
-            --leaf-dark: #145436;
+            --ink: #102234;
+            --muted: #6b7682;
+            --line: #dde3ec;
+            --paper: #fcfdff;
+            --leaf: #15466e;
+            --leaf-dark: #0e3050;
             --amber: #e8a820;
             --z-modal: 50;
             --z-toast: 100;
@@ -37,8 +37,8 @@
             font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             background:
                 radial-gradient(circle at 12% 10%, rgba(232, 168, 32, 0.2), transparent 28rem),
-                radial-gradient(circle at 88% 8%, rgba(31, 122, 77, 0.16), transparent 24rem),
-                linear-gradient(145deg, #f7f0dd 0%, #edf4e8 52%, #f9f6ec 100%);
+                radial-gradient(circle at 88% 8%, rgba(21, 70, 110, 0.16), transparent 24rem),
+                linear-gradient(145deg, #eef2f8 0%, #f4f6fa 52%, #fbfcff 100%);
         }
 
         .calendar-grid {
@@ -54,14 +54,14 @@
         }
 
         .day-cell:hover {
-            background-color: #fff7df;
+            background-color: #fdf3d8;
             transform: translateY(-1px);
         }
 
         .glass {
-            background: rgba(255, 253, 246, 0.86);
-            border: 1px solid rgba(220, 229, 218, 0.95);
-            box-shadow: 0 24px 80px rgba(25, 55, 37, 0.12);
+            background: rgba(252, 253, 255, 0.86);
+            border: 1px solid rgba(221, 227, 236, 0.95);
+            box-shadow: 0 24px 80px rgba(16, 34, 52, 0.12);
             backdrop-filter: blur(16px);
         }
 
@@ -357,8 +357,8 @@
             border-top: 1px solid currentColor;
         }
 
-        [class~="border-[#dce5da]"] {
-            border-color: #dce5da;
+        [class~="border-[#dde3ec]"] {
+            border-color: #dde3ec;
         }
 
         .bg-white {
@@ -385,16 +385,16 @@
             background-color: rgba(0, 0, 0, 0.5);
         }
 
-        [class~="bg-[#fffdf6]"] {
-            background-color: #fffdf6;
+        [class~="bg-[#fcfdff]"] {
+            background-color: #fcfdff;
         }
 
-        [class~="bg-[#162019]"] {
-            background-color: #162019;
+        [class~="bg-[#102234]"] {
+            background-color: #102234;
         }
 
-        [class~="bg-[#1f7a4d]"] {
-            background-color: #1f7a4d;
+        [class~="bg-[#15466e]"] {
+            background-color: #15466e;
         }
 
         [class~="bg-[#e8a820]"] {
@@ -405,28 +405,28 @@
             background-color: #c27b00;
         }
 
-        [class~="bg-[#edf2e9]"] {
-            background-color: #edf2e9;
+        [class~="bg-[#e8edf3]"] {
+            background-color: #e8edf3;
         }
 
-        [class~="bg-[#f4ead2]"] {
-            background-color: #f4ead2;
+        [class~="bg-[#e8eef6]"] {
+            background-color: #e8eef6;
         }
 
-        [class~="bg-[#f8f2e2]/70"] {
-            background-color: rgba(248, 242, 226, 0.7);
+        [class~="bg-[#eef2f8]/70"] {
+            background-color: rgba(238, 242, 248, 0.7);
         }
 
-        [class~="bg-[#faf7f0]/80"] {
-            background-color: rgba(250, 247, 240, 0.8);
+        [class~="bg-[#f1f4f9]/80"] {
+            background-color: rgba(241, 244, 249, 0.8);
         }
 
-        [class~="bg-[#f8f5ee]"] {
-            background-color: #f8f5ee;
+        [class~="bg-[#eef2f7]"] {
+            background-color: #eef2f7;
         }
 
         .bg-green-50 {
-            background-color: #f0fdf4;
+            background-color: #e9f1fb;
         }
 
         .bg-red-50 {
@@ -591,7 +591,7 @@
         }
 
         .text-green-800 {
-            color: #166534;
+            color: #15466e;
         }
 
         .text-red-500 {
@@ -606,24 +606,24 @@
             color: #3b82f6;
         }
 
-        [class~="text-[#162019]"] {
-            color: #162019;
+        [class~="text-[#102234]"] {
+            color: #102234;
         }
 
-        [class~="text-[#1f7a4d]"] {
-            color: #1f7a4d;
+        [class~="text-[#15466e]"] {
+            color: #15466e;
         }
 
-        [class~="text-[#6f7b72]"] {
-            color: #6f7b72;
+        [class~="text-[#6b7682]"] {
+            color: #6b7682;
         }
 
         [class~="text-[#c27b00]"] {
             color: #c27b00;
         }
 
-        [class~="text-[#b7bfae]"] {
-            color: #b7bfae;
+        [class~="text-[#aeb6c2]"] {
+            color: #aeb6c2;
         }
 
         .outline-none {
@@ -640,39 +640,39 @@
         }
 
         .ring-1 {
-            box-shadow: 0 0 0 1px #1f7a4d;
+            box-shadow: 0 0 0 1px #15466e;
         }
 
-        [class~="hover:bg-[#26382c]"]:hover {
-            background-color: #26382c;
+        [class~="hover:bg-[#22384d]"]:hover {
+            background-color: #22384d;
         }
 
-        [class~="hover:bg-[#145436]"]:hover {
-            background-color: #145436;
+        [class~="hover:bg-[#0e3050]"]:hover {
+            background-color: #0e3050;
         }
 
-        [class~="hover:bg-[#f4ead2]"]:hover {
-            background-color: #f4ead2;
+        [class~="hover:bg-[#e8eef6]"]:hover {
+            background-color: #e8eef6;
         }
 
         [class~="hover:bg-[#d89918]"]:hover {
             background-color: #d89918;
         }
 
-        [class~="hover:bg-[#e1eadc]"]:hover {
-            background-color: #e1eadc;
+        [class~="hover:bg-[#dde5ee]"]:hover {
+            background-color: #dde5ee;
         }
 
         .hover\:bg-red-100:hover {
             background-color: #fee2e2;
         }
 
-        [class~="focus:border-[#1f7a4d]"]:focus {
-            border-color: #1f7a4d;
+        [class~="focus:border-[#15466e]"]:focus {
+            border-color: #15466e;
         }
 
         [class~="focus:ring-4"]:focus {
-            box-shadow: 0 0 0 4px rgba(20, 83, 45, 0.1);
+            box-shadow: 0 0 0 4px rgba(14, 48, 80, 0.1);
         }
 
         @keyframes toast-in {
@@ -787,7 +787,7 @@
             transition: background 0.12s;
         }
         .search-result-item:hover {
-            background: #fff7df;
+            background: #fdf3d8;
         }
         .search-result-item:last-child {
             border-bottom: 0;
@@ -800,31 +800,31 @@
         <header class="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
                 <p class="mb-2 text-sm font-bold tracking-[0.28em] text-green-800">CORPORATE CARD LEDGER</p>
-                <h1 class="text-3xl font-extrabold tracking-tight text-[#162019] md:text-5xl">법인카드관리 백오피스</h1>
-                <p id="current-month-display" class="mt-3 text-base font-medium text-[#6f7b72]">-</p>
+                <h1 class="text-3xl font-extrabold tracking-tight text-[#102234] md:text-5xl">법인카드관리 백오피스</h1>
+                <p id="current-month-display" class="mt-3 text-base font-medium text-[#6b7682]">-</p>
             </div>
             <div class="flex flex-col gap-3">
                 <div class="glass rounded-3xl p-4">
-                    <label for="default-names-input" class="mb-2 block text-sm font-bold text-[#162019]">기본 사용
+                    <label for="default-names-input" class="mb-2 block text-sm font-bold text-[#102234]">기본 사용
                         인원</label>
                     <div class="flex flex-col gap-2 sm:flex-row">
                         <input type="text" id="default-names-input" placeholder="예: 김철수, 이영희"
-                            class="min-w-0 flex-1 rounded-2xl border border-[#dce5da] bg-white/80 px-4 py-3 text-sm font-medium outline-none focus:border-[#1f7a4d] focus:ring-4 focus:ring-green-900/10">
+                            class="min-w-0 flex-1 rounded-2xl border border-[#dde3ec] bg-white/80 px-4 py-3 text-sm font-medium outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
                         <button id="save-default-names"
-                            class="rounded-2xl bg-[#162019] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#26382c]">
+                            class="rounded-2xl bg-[#102234] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#22384d]">
                             기본값 저장
                         </button>
                     </div>
-                    <p id="default-saved-msg" class="mt-1 hidden text-xs font-bold text-[#1f7a4d]">저장됨 ✓</p>
+                    <p id="default-saved-msg" class="mt-1 hidden text-xs font-bold text-[#15466e]">저장됨 ✓</p>
                 </div>
                 <div class="glass rounded-3xl px-4 py-3 flex items-center gap-2">
-                    <span class="text-xs font-bold text-[#6f7b72] mr-1">데이터</span>
+                    <span class="text-xs font-bold text-[#6b7682] mr-1">데이터</span>
                     <button id="backup-btn"
-                        class="rounded-xl border border-[#dce5da] bg-white/80 px-3 py-2 text-xs font-bold text-[#162019] transition hover:bg-[#f4ead2]">
+                        class="rounded-xl border border-[#dde3ec] bg-white/80 px-3 py-2 text-xs font-bold text-[#102234] transition hover:bg-[#e8eef6]">
                         💾 백업 (JSON)
                     </button>
                     <label
-                        class="cursor-pointer rounded-xl border border-[#dce5da] bg-white/80 px-3 py-2 text-xs font-bold text-[#162019] transition hover:bg-[#f4ead2]">
+                        class="cursor-pointer rounded-xl border border-[#dde3ec] bg-white/80 px-3 py-2 text-xs font-bold text-[#102234] transition hover:bg-[#e8eef6]">
                         📂 복원 (JSON)
                         <input type="file" id="restore-input" accept=".json" class="hidden">
                     </label>
@@ -834,28 +834,28 @@
 
         <section class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-5">
             <div class="glass rounded-3xl p-5">
-                <p class="text-sm font-bold text-[#6f7b72]">월 합계</p>
-                <h2 id="total-spent" class="mt-2 text-3xl font-extrabold text-[#162019]">0원</h2>
+                <p class="text-sm font-bold text-[#6b7682]">월 합계</p>
+                <h2 id="total-spent" class="mt-2 text-3xl font-extrabold text-[#102234]">0원</h2>
             </div>
             <div class="glass rounded-3xl p-5">
-                <p class="text-sm font-bold text-[#6f7b72]">기록 일수</p>
-                <h2 id="entry-count" class="mt-2 text-3xl font-extrabold text-[#1f7a4d]">0일</h2>
+                <p class="text-sm font-bold text-[#6b7682]">기록 일수</p>
+                <h2 id="entry-count" class="mt-2 text-3xl font-extrabold text-[#15466e]">0일</h2>
             </div>
             <div class="glass rounded-3xl p-5">
-                <p class="text-sm font-bold text-[#6f7b72]">일 평균</p>
+                <p class="text-sm font-bold text-[#6b7682]">일 평균</p>
                 <h2 id="avg-spent" class="mt-2 text-3xl font-extrabold text-[#c27b00]">0원</h2>
             </div>
             <div class="glass rounded-3xl p-5">
-                <p class="text-sm font-bold text-[#6f7b72]">이번 달 CSV</p>
+                <p class="text-sm font-bold text-[#6b7682]">이번 달 CSV</p>
                 <button id="export-csv"
-                    class="mt-3 w-full rounded-2xl bg-[#1f7a4d] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#145436]">
+                    class="mt-3 w-full rounded-2xl bg-[#15466e] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#0e3050]">
                     현재 월 다운로드
                 </button>
             </div>
             <div class="glass rounded-3xl p-5">
-                <p class="text-sm font-bold text-[#6f7b72]">전체 CSV</p>
+                <p class="text-sm font-bold text-[#6b7682]">전체 CSV</p>
                 <button id="export-all-csv"
-                    class="mt-3 w-full rounded-2xl bg-[#162019] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#26382c]">
+                    class="mt-3 w-full rounded-2xl bg-[#102234] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#22384d]">
                     전체 기간 다운로드
                 </button>
             </div>
@@ -864,33 +864,33 @@
         <!-- 검색 / 필터 -->
         <div class="glass rounded-3xl mb-6 px-5 py-4">
             <div class="flex items-center gap-3">
-                <svg class="flex-shrink-0 h-5 w-5 text-[#6f7b72]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="flex-shrink-0 h-5 w-5 text-[#6b7682]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"></path>
                 </svg>
                 <input type="search" id="search-bar" placeholder="인원·메모로 검색 (예: 김철수)"
-                    class="min-w-0 flex-1 bg-transparent text-sm font-medium text-[#162019] outline-none"
+                    class="min-w-0 flex-1 bg-transparent text-sm font-medium text-[#102234] outline-none"
                     aria-label="기록 검색">
-                <button id="search-clear-btn" class="hidden flex-shrink-0 rounded-full text-[#6f7b72] hover:bg-[#f4ead2] p-1 text-sm font-bold" aria-label="검색 초기화">✕</button>
+                <button id="search-clear-btn" class="hidden flex-shrink-0 rounded-full text-[#6b7682] hover:bg-[#e8eef6] p-1 text-sm font-bold" aria-label="검색 초기화">✕</button>
             </div>
         </div>
 
         <!-- 검색 결과 목록 (검색 중일 때만 표시) -->
         <div id="search-results" class="hidden glass overflow-hidden rounded-[2rem] mb-6">
-            <div class="px-5 py-3 border-b border-[#dce5da] flex items-center justify-between">
-                <p id="search-result-count" class="text-sm font-bold text-[#6f7b72]">결과</p>
+            <div class="px-5 py-3 border-b border-[#dde3ec] flex items-center justify-between">
+                <p id="search-result-count" class="text-sm font-bold text-[#6b7682]">결과</p>
             </div>
             <div id="search-result-list"></div>
         </div>
 
         <main class="glass overflow-hidden rounded-[2rem]">
-            <div class="calendar-grid border-b border-[#dce5da] bg-[#f4ead2] py-3 text-center">
+            <div class="calendar-grid border-b border-[#dde3ec] bg-[#e8eef6] py-3 text-center">
                 <div class="text-xs font-extrabold uppercase tracking-widest text-red-500">Sun</div>
-                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6f7b72]">Mon</div>
-                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6f7b72]">Tue</div>
-                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6f7b72]">Wed</div>
-                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6f7b72]">Thu</div>
-                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6f7b72]">Fri</div>
+                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6b7682]">Mon</div>
+                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6b7682]">Tue</div>
+                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6b7682]">Wed</div>
+                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6b7682]">Thu</div>
+                <div class="text-xs font-extrabold uppercase tracking-widest text-[#6b7682]">Fri</div>
                 <div class="text-xs font-extrabold uppercase tracking-widest text-blue-500">Sat</div>
             </div>
             <div id="calendar-body" class="calendar-grid bg-white/78"></div>
@@ -898,17 +898,17 @@
 
         <nav class="mt-6 flex items-center justify-center gap-3">
             <button id="prev-month"
-                class="rounded-full border border-[#dce5da] bg-white/80 p-3 text-[#162019] transition hover:bg-[#f4ead2]"
+                class="rounded-full border border-[#dde3ec] bg-white/80 p-3 text-[#102234] transition hover:bg-[#e8eef6]"
                 aria-label="이전 달">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
             <button id="today-btn"
-                class="rounded-full bg-[#e8a820] px-5 py-3 text-sm font-extrabold text-[#162019] transition hover:bg-[#d89918]">이번
+                class="rounded-full bg-[#e8a820] px-5 py-3 text-sm font-extrabold text-[#102234] transition hover:bg-[#d89918]">이번
                 달</button>
             <button id="next-month"
-                class="rounded-full border border-[#dce5da] bg-white/80 p-3 text-[#162019] transition hover:bg-[#f4ead2]"
+                class="rounded-full border border-[#dde3ec] bg-white/80 p-3 text-[#102234] transition hover:bg-[#e8eef6]"
                 aria-label="다음 달">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -920,75 +920,75 @@
     <!-- 식대 입력 모달 -->
     <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-date-title"
         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
-        <div class="modal-inner w-full max-w-md rounded-[2rem] bg-[#fffdf6] shadow-2xl">
+        <div class="modal-inner w-full max-w-md rounded-[2rem] bg-[#fcfdff] shadow-2xl">
             <div class="p-6">
                 <!-- 모달 헤더 -->
                 <div class="mb-5 flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-sm font-bold text-[#1f7a4d]">식대 기록</p>
-                        <h3 id="modal-date-title" class="mt-1 text-2xl font-extrabold text-[#162019]">-</h3>
+                        <p class="text-sm font-bold text-[#15466e]">식대 기록</p>
+                        <h3 id="modal-date-title" class="mt-1 text-2xl font-extrabold text-[#102234]">-</h3>
                     </div>
                     <button id="modal-x-btn" type="button" aria-label="모달 닫기"
-                        class="flex-shrink-0 flex h-9 w-9 items-center justify-center rounded-full text-[#6f7b72] hover:bg-[#f4ead2] text-xl font-bold leading-none">
+                        class="flex-shrink-0 flex h-9 w-9 items-center justify-center rounded-full text-[#6b7682] hover:bg-[#e8eef6] text-xl font-bold leading-none">
                         ×
                     </button>
                 </div>
 
                 <!-- 등록된 기록 목록 -->
                 <div id="entry-list-wrap" class="hidden mb-5">
-                    <p class="text-xs font-bold text-[#6f7b72] mb-2">등록된 기록</p>
+                    <p class="text-xs font-bold text-[#6b7682] mb-2">등록된 기록</p>
                     <div id="entry-list" class="space-y-2"></div>
-                    <div class="mt-4 border-t border-[#dce5da]"></div>
+                    <div class="mt-4 border-t border-[#dde3ec]"></div>
                 </div>
 
                 <!-- 추가 / 수정 폼 -->
                 <div class="space-y-4">
                     <div class="flex items-baseline justify-between">
-                        <p id="form-title" class="text-sm font-bold text-[#162019]">새 항목 추가</p>
-                        <p id="modal-updated-at" class="hidden text-xs text-[#6f7b72]"></p>
+                        <p id="form-title" class="text-sm font-bold text-[#102234]">새 항목 추가</p>
+                        <p id="modal-updated-at" class="hidden text-xs text-[#6b7682]"></p>
                     </div>
 
                     <div>
-                        <label for="expense-amount" class="mb-1 block text-sm font-bold text-[#162019]">사용금액</label>
+                        <label for="expense-amount" class="mb-1 block text-sm font-bold text-[#102234]">사용금액</label>
                         <input type="number" id="expense-amount" min="0" step="1" placeholder="0"
-                            class="w-full rounded-2xl border border-[#dce5da] bg-white px-4 py-3 text-lg font-extrabold outline-none focus:border-[#1f7a4d] focus:ring-4 focus:ring-green-900/10">
-                        <p id="amount-preview" class="mt-1 text-sm font-bold text-[#1f7a4d]"></p>
+                            class="w-full rounded-2xl border border-[#dde3ec] bg-white px-4 py-3 text-lg font-extrabold outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
+                        <p id="amount-preview" class="mt-1 text-sm font-bold text-[#15466e]"></p>
                     </div>
                     <div>
-                        <label for="expense-people" class="mb-1 block text-sm font-bold text-[#162019]">사용 인원</label>
+                        <label for="expense-people" class="mb-1 block text-sm font-bold text-[#102234]">사용 인원</label>
                         <input type="text" id="expense-people" placeholder="예: 김철수, 이영희"
-                            class="w-full rounded-2xl border border-[#dce5da] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#1f7a4d] focus:ring-4 focus:ring-green-900/10">
-                        <p class="mt-2 text-xs font-medium text-[#6f7b72]">새 기록에는 저장된 기본 사용 인원이 자동 입력됩니다.</p>
+                            class="w-full rounded-2xl border border-[#dde3ec] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
+                        <p class="mt-2 text-xs font-medium text-[#6b7682]">새 기록에는 저장된 기본 사용 인원이 자동 입력됩니다.</p>
                     </div>
                     <div>
-                        <label for="expense-pay-time" class="mb-1 block text-sm font-bold text-[#162019]">결제 시간</label>
+                        <label for="expense-pay-time" class="mb-1 block text-sm font-bold text-[#102234]">결제 시간</label>
                         <input type="time" id="expense-pay-time"
-                            class="w-full rounded-2xl border border-[#dce5da] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#1f7a4d] focus:ring-4 focus:ring-green-900/10">
+                            class="w-full rounded-2xl border border-[#dde3ec] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
                     </div>
                     <div class="flex gap-3">
                         <div class="flex-1">
-                            <label for="expense-merchant" class="mb-1 block text-sm font-bold text-[#162019]">가맹점 번호</label>
+                            <label for="expense-merchant" class="mb-1 block text-sm font-bold text-[#102234]">가맹점 번호</label>
                             <input type="text" id="expense-merchant" placeholder="선택 입력"
-                                class="w-full rounded-2xl border border-[#dce5da] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#1f7a4d] focus:ring-4 focus:ring-green-900/10">
+                                class="w-full rounded-2xl border border-[#dde3ec] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
                         </div>
                         <div class="flex-1">
-                            <label for="expense-approval" class="mb-1 block text-sm font-bold text-[#162019]">승인 번호</label>
+                            <label for="expense-approval" class="mb-1 block text-sm font-bold text-[#102234]">승인 번호</label>
                             <input type="text" id="expense-approval" placeholder="선택 입력"
-                                class="w-full rounded-2xl border border-[#dce5da] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#1f7a4d] focus:ring-4 focus:ring-green-900/10">
+                                class="w-full rounded-2xl border border-[#dde3ec] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
                         </div>
                     </div>
                     <div>
-                        <label for="expense-note" class="mb-1 block text-sm font-bold text-[#162019]">메모</label>
+                        <label for="expense-note" class="mb-1 block text-sm font-bold text-[#102234]">메모</label>
                         <input type="text" id="expense-note" placeholder="선택 입력"
-                            class="w-full rounded-2xl border border-[#dce5da] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#1f7a4d] focus:ring-4 focus:ring-green-900/10">
+                            class="w-full rounded-2xl border border-[#dde3ec] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
                     </div>
 
                     <!-- 추가 모드 버튼 -->
                     <div id="btn-add-mode" class="flex gap-2 pt-2">
                         <button id="close-modal-btn"
-                            class="flex-1 rounded-2xl bg-[#edf2e9] px-4 py-3 text-sm font-bold text-[#162019] hover:bg-[#e1eadc]">닫기</button>
+                            class="flex-1 rounded-2xl bg-[#e8edf3] px-4 py-3 text-sm font-bold text-[#102234] hover:bg-[#dde5ee]">닫기</button>
                         <button id="add-expense-btn"
-                            class="flex-1 rounded-2xl bg-[#1f7a4d] px-4 py-3 text-sm font-bold text-white hover:bg-[#145436]">추가</button>
+                            class="flex-1 rounded-2xl bg-[#15466e] px-4 py-3 text-sm font-bold text-white hover:bg-[#0e3050]">추가</button>
                     </div>
 
                     <!-- 수정 모드 버튼 -->
@@ -996,9 +996,9 @@
                         <button id="delete-editing-btn"
                             class="flex-1 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-100">삭제</button>
                         <button id="cancel-edit-btn"
-                            class="flex-1 rounded-2xl bg-[#edf2e9] px-4 py-3 text-sm font-bold text-[#162019] hover:bg-[#e1eadc]">취소</button>
+                            class="flex-1 rounded-2xl bg-[#e8edf3] px-4 py-3 text-sm font-bold text-[#102234] hover:bg-[#dde5ee]">취소</button>
                         <button id="save-expense-btn"
-                            class="flex-1 rounded-2xl bg-[#1f7a4d] px-4 py-3 text-sm font-bold text-white hover:bg-[#145436]">저장</button>
+                            class="flex-1 rounded-2xl bg-[#15466e] px-4 py-3 text-sm font-bold text-white hover:bg-[#0e3050]">저장</button>
                     </div>
                 </div>
             </div>
@@ -1007,7 +1007,7 @@
 
     <!-- 토스트 메시지 -->
     <div id="toast"
-        class="fixed bottom-6 left-1/2 z-[100] hidden -translate-x-1/2 rounded-2xl bg-[#162019] px-6 py-3 text-sm font-bold text-white shadow-2xl">
+        class="fixed bottom-6 left-1/2 z-[100] hidden -translate-x-1/2 rounded-2xl bg-[#102234] px-6 py-3 text-sm font-bold text-white shadow-2xl">
     </div>
 
     <script>
@@ -1071,7 +1071,7 @@
             const toast = document.getElementById('toast');
             if (!toast) return;
             toast.textContent = message;
-            toast.className = `fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 rounded-2xl px-6 py-3 text-sm font-bold text-white shadow-2xl toast-show ${type === 'error' ? 'bg-red-700' : type === 'warn' ? 'bg-[#c27b00]' : 'bg-[#162019]'
+            toast.className = `fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 rounded-2xl px-6 py-3 text-sm font-bold text-white shadow-2xl toast-show ${type === 'error' ? 'bg-red-700' : type === 'warn' ? 'bg-[#c27b00]' : 'bg-[#102234]'
                 }`;
             toast.classList.remove('hidden');
             if (toastTimer) clearTimeout(toastTimer);
@@ -1284,7 +1284,7 @@
 
             // 첫 주 앞 빈 칸
             for (let i = 0; i < firstDay; i++) {
-                calendarBody.appendChild(el('div', 'day-cell bg-[#f8f2e2]/70'));
+                calendarBody.appendChild(el('div', 'day-cell bg-[#eef2f8]/70'));
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
@@ -1298,7 +1298,7 @@
                 const holiday = HOLIDAYS[dateStr] || null;
 
                 const cell = el('button', `day-cell flex min-w-0 flex-col p-3 text-left ${
-                    isToday ? 'bg-green-50' : isWeekend ? 'bg-[#faf7f0]/80' : 'bg-white/50'
+                    isToday ? 'bg-green-50' : isWeekend ? 'bg-[#f1f4f9]/80' : 'bg-white/50'
                 }`);
                 cell.type = 'button';
                 cell.onclick = () => openModal(dateStr);
@@ -1307,10 +1307,10 @@
                 // 날짜 숫자
                 const dayNum = el('span',
                     `mb-2 flex h-7 w-7 items-center justify-center rounded-full text-sm font-extrabold ${
-                        isToday     ? 'bg-[#1f7a4d] text-white' :
+                        isToday     ? 'bg-[#15466e] text-white' :
                         (isSunday || holiday) ? 'text-red-500' :
                         isSaturday  ? 'text-blue-500' :
-                                      'text-[#6f7b72]'
+                                      'text-[#6b7682]'
                     }`, day);
                 cell.appendChild(dayNum);
 
@@ -1321,7 +1321,7 @@
 
                 if (dayEntries.length > 0) {
                     const totalAmt = dayEntries.reduce((s, e) => s + Number(e.amount || 0), 0);
-                    cell.appendChild(el('strong', 'truncate text-base font-extrabold text-[#162019]', formatWon(totalAmt)));
+                    cell.appendChild(el('strong', 'truncate text-base font-extrabold text-[#102234]', formatWon(totalAmt)));
 
                     if (dayEntries.length > 1) {
                         cell.appendChild(el('span', 'mt-0.5 text-xs font-extrabold text-[#c27b00]', `${dayEntries.length}건`));
@@ -1329,15 +1329,15 @@
 
                     const firstPeople = dayEntries[0].people;
                     if (firstPeople) {
-                        cell.appendChild(el('span', 'mt-1 truncate text-xs font-bold text-[#1f7a4d]',
+                        cell.appendChild(el('span', 'mt-1 truncate text-xs font-bold text-[#15466e]',
                             dayEntries.length > 1 ? `${firstPeople} 외` : firstPeople));
                     }
 
                     if (dayEntries.length === 1 && dayEntries[0].note) {
-                        cell.appendChild(el('span', 'mt-1 truncate text-xs text-[#6f7b72]', dayEntries[0].note));
+                        cell.appendChild(el('span', 'mt-1 truncate text-xs text-[#6b7682]', dayEntries[0].note));
                     }
                 } else if (!isWeekend && !holiday) {
-                    cell.appendChild(el('span', 'mt-auto text-xs font-bold text-[#b7bfae]', '미기록'));
+                    cell.appendChild(el('span', 'mt-auto text-xs font-bold text-[#aeb6c2]', '미기록'));
                 }
 
                 calendarBody.appendChild(cell);
@@ -1396,28 +1396,28 @@
             dayEntries.forEach((entry) => {
                 const isActive = editingEntryId === entry.id;
                 const item = el('div', `flex items-start gap-2 rounded-xl p-3 transition ${
-                    isActive ? 'bg-green-50 ring-1 ring-[#1f7a4d]' : 'bg-[#f8f5ee]'
+                    isActive ? 'bg-green-50 ring-1 ring-[#15466e]' : 'bg-[#eef2f7]'
                 }`);
 
                 const info = el('div', 'flex-1 min-w-0');
 
                 // 1행: 금액 + 결제시간
                 const row1 = el('div', 'flex items-baseline gap-2');
-                row1.appendChild(el('strong', 'text-sm font-extrabold text-[#162019]', formatWon(entry.amount)));
-                if (entry.payTime) row1.appendChild(el('span', 'text-xs font-medium text-[#6f7b72]', entry.payTime));
+                row1.appendChild(el('strong', 'text-sm font-extrabold text-[#102234]', formatWon(entry.amount)));
+                if (entry.payTime) row1.appendChild(el('span', 'text-xs font-medium text-[#6b7682]', entry.payTime));
                 info.appendChild(row1);
 
                 // 2행: 인원
-                if (entry.people) info.appendChild(el('span', 'block mt-0.5 text-xs font-bold text-[#1f7a4d]', entry.people));
+                if (entry.people) info.appendChild(el('span', 'block mt-0.5 text-xs font-bold text-[#15466e]', entry.people));
 
                 // 3행: 가맹점·승인번호·메모 (있을 때만)
                 const meta = [];
                 if (entry.merchant) meta.push(`가맹점 ${entry.merchant}`);
                 if (entry.approval) meta.push(`승인 ${entry.approval}`);
                 if (entry.note)     meta.push(entry.note);
-                if (meta.length) info.appendChild(el('span', 'block mt-0.5 truncate text-xs text-[#6f7b72]', meta.join(' · ')));
+                if (meta.length) info.appendChild(el('span', 'block mt-0.5 truncate text-xs text-[#6b7682]', meta.join(' · ')));
 
-                const editBtn = el('button', 'flex-shrink-0 rounded-lg border border-[#dce5da] bg-white px-2.5 py-1 text-xs font-bold text-[#162019] hover:bg-[#f4ead2]', '수정');
+                const editBtn = el('button', 'flex-shrink-0 rounded-lg border border-[#dde3ec] bg-white px-2.5 py-1 text-xs font-bold text-[#102234] hover:bg-[#e8eef6]', '수정');
                 editBtn.onclick = (e) => { e.stopPropagation(); startEdit(entry.id); };
 
                 const delBtn = el('button', 'flex-shrink-0 rounded-lg bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-100', '삭제');
@@ -1781,7 +1781,7 @@
             searchResults.classList.remove('hidden');
 
             if (!matches.length) {
-                const empty = el('div', 'px-5 py-6 text-sm font-medium text-center text-[#b7bfae]', '일치하는 기록이 없습니다.');
+                const empty = el('div', 'px-5 py-6 text-sm font-medium text-center text-[#aeb6c2]', '일치하는 기록이 없습니다.');
                 searchResultList.appendChild(empty);
                 return;
             }
@@ -1799,15 +1799,15 @@
                 item.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') item.click(); };
 
                 const left = el('div', 'flex-1 min-w-0');
-                left.appendChild(el('p', 'text-xs font-bold text-[#6f7b72]', dateLabel));
+                left.appendChild(el('p', 'text-xs font-bold text-[#6b7682]', dateLabel));
 
                 const row = el('div', 'flex items-baseline gap-2 mt-0.5');
-                row.appendChild(el('strong', 'text-sm font-extrabold text-[#162019]', formatWon(entry.amount)));
-                if (entry.people) row.appendChild(el('span', 'text-xs font-bold text-[#1f7a4d]', entry.people));
-                if (entry.note)   row.appendChild(el('span', 'text-xs text-[#6f7b72]', entry.note));
+                row.appendChild(el('strong', 'text-sm font-extrabold text-[#102234]', formatWon(entry.amount)));
+                if (entry.people) row.appendChild(el('span', 'text-xs font-bold text-[#15466e]', entry.people));
+                if (entry.note)   row.appendChild(el('span', 'text-xs text-[#6b7682]', entry.note));
                 left.appendChild(row);
 
-                const badge = el('span', 'flex-shrink-0 text-xs font-bold text-[#6f7b72]', getDayOfWeek(date));
+                const badge = el('span', 'flex-shrink-0 text-xs font-bold text-[#6b7682]', getDayOfWeek(date));
                 item.appendChild(left);
                 item.appendChild(badge);
                 searchResultList.appendChild(item);

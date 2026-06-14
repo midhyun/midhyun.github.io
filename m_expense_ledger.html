@@ -7,7 +7,7 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/icon-180.png">
     <link rel="manifest" href="./m_manifest.json">
-    <meta name="theme-color" content="#1f7a4d">
+    <meta name="theme-color" content="#15466e">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,14 +15,14 @@
     <title>법인카드 식대 · 모바일</title>
     <style>
         :root {
-            --ink: #162019;
-            --muted: #6f7b72;
-            --line: #dce5da;
-            --leaf: #1f7a4d;
-            --leaf-dark: #145436;
+            --ink: #102234;
+            --muted: #6b7682;
+            --line: #dde3ec;
+            --leaf: #15466e;
+            --leaf-dark: #0e3050;
             --amber: #e8a820;
             --amber-dark: #c27b00;
-            --paper: #fffdf6;
+            --paper: #fcfdff;
             --danger: #dc2626;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -38,8 +38,8 @@
             font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             background:
                 radial-gradient(circle at 12% 4%, rgba(232, 168, 32, 0.18), transparent 18rem),
-                radial-gradient(circle at 90% 6%, rgba(31, 122, 77, 0.16), transparent 16rem),
-                linear-gradient(160deg, #f7f0dd 0%, #edf4e8 55%, #f9f6ec 100%);
+                radial-gradient(circle at 90% 6%, rgba(21, 70, 110, 0.16), transparent 16rem),
+                linear-gradient(160deg, #eef2f8 0%, #f4f6fa 55%, #fbfcff 100%);
             background-attachment: fixed;
             -webkit-font-smoothing: antialiased;
         }
@@ -65,7 +65,7 @@
             z-index: 30;
             margin: 0 -14px 12px;
             padding: calc(var(--safe-top) + 10px) 16px 12px;
-            background: rgba(255, 253, 246, 0.82);
+            background: rgba(252, 253, 255, 0.82);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--line);
@@ -89,7 +89,7 @@
             background: #fff; border: 1px solid var(--line); color: var(--ink);
             font-size: 1.1rem; font-weight: 800;
         }
-        .iconbtn:active { background: #f4ead2; }
+        .iconbtn:active { background: #e8eef6; }
         .today-chip {
             padding: 8px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 800;
             background: var(--amber); color: var(--ink);
@@ -103,7 +103,7 @@
         .stat {
             background: rgba(255,255,255,0.78); border: 1px solid var(--line);
             border-radius: 16px; padding: 12px 12px 11px;
-            box-shadow: 0 8px 24px rgba(25,55,37,0.06);
+            box-shadow: 0 8px 24px rgba(16,34,52,0.06);
         }
         .stat .k { font-size: 0.68rem; font-weight: 800; color: var(--muted); }
         .stat .v { margin-top: 4px; font-size: 1.12rem; font-weight: 800; letter-spacing: -0.02em; }
@@ -116,7 +116,7 @@
             display: flex; align-items: center; gap: 12px;
             padding: 16px 18px; border-radius: 20px;
             background: linear-gradient(135deg, var(--leaf), var(--leaf-dark));
-            color: #fff; box-shadow: 0 14px 30px rgba(20,83,54,0.28);
+            color: #fff; box-shadow: 0 14px 30px rgba(14,48,80,0.28);
         }
         .scan-cta:active { transform: translateY(1px); }
         .scan-cta .emoji { font-size: 1.7rem; line-height: 1; }
@@ -132,7 +132,7 @@
         }
         .setbar .lbl { font-size: 0.74rem; font-weight: 800; color: var(--muted); flex-shrink: 0; }
         .setbar input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font-size: 16px; font-weight: 600; }
-        .setbar input::placeholder { color: #b7bfae; }
+        .setbar input::placeholder { color: #aeb6c2; }
         .setbar .saved { font-size: 0.68rem; font-weight: 800; color: var(--leaf); flex-shrink: 0; opacity: 0; transition: opacity 0.2s; }
         .setbar .saved.show { opacity: 1; }
 
@@ -149,11 +149,11 @@
         /* ── 달력 ── */
         .card {
             background: rgba(255,255,255,0.82); border: 1px solid var(--line);
-            border-radius: 22px; overflow: hidden; box-shadow: 0 14px 40px rgba(25,55,37,0.08);
+            border-radius: 22px; overflow: hidden; box-shadow: 0 14px 40px rgba(16,34,52,0.08);
         }
         .cal-head, .cal-body { display: grid; grid-template-columns: repeat(7, 1fr); }
         .cal-head {
-            background: #f4ead2; border-bottom: 1px solid var(--line); padding: 8px 0; text-align: center;
+            background: #e8eef6; border-bottom: 1px solid var(--line); padding: 8px 0; text-align: center;
         }
         .cal-head div { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; }
         .cal-head .sun { color: #ef4444; }
@@ -165,10 +165,10 @@
             background: rgba(255,255,255,0.4);
         }
         .cell:nth-child(7n) { border-right: 0; }
-        .cell.blank { background: rgba(248,242,226,0.45); }
-        .cell.weekend { background: rgba(250,247,240,0.7); }
-        .cell.today { background: #eafaf0; }
-        .cell:active:not(.blank) { background: #fff7df; }
+        .cell.blank { background: rgba(238,242,248,0.45); }
+        .cell.weekend { background: rgba(241,244,249,0.7); }
+        .cell.today { background: #e9f1fb; }
+        .cell:active:not(.blank) { background: #fdf3d8; }
         .cell .dn {
             align-self: flex-start; min-width: 22px; height: 22px; padding: 0 4px;
             display: inline-flex; align-items: center; justify-content: center;
@@ -190,7 +190,7 @@
             background: rgba(255,255,255,0.78); border: 1px solid var(--line);
             border-radius: 16px; margin-bottom: 8px;
         }
-        .rec:active { background: #fff7df; }
+        .rec:active { background: #fdf3d8; }
         .rec .d {
             flex-shrink: 0; width: 46px; text-align: center;
         }
@@ -201,8 +201,8 @@
         .rec .mid .a { font-size: 0.98rem; font-weight: 800; }
         .rec .mid .s { font-size: 0.72rem; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .rec .mid .s .ppl { color: var(--leaf); font-weight: 700; }
-        .rec .chev { color: #cdd6c9; font-weight: 800; font-size: 1.1rem; }
-        .empty { text-align: center; color: #b7bfae; font-weight: 700; font-size: 0.85rem; padding: 22px 0; }
+        .rec .chev { color: #cbd5e1; font-weight: 800; font-size: 1.1rem; }
+        .empty { text-align: center; color: #aeb6c2; font-weight: 700; font-size: 0.85rem; padding: 22px 0; }
 
         /* ── 하단 데이터 바 ── */
         .databar {
@@ -233,12 +233,12 @@
         }
         .sheet::-webkit-scrollbar { display: none; }
         .sheet-scrim.show .sheet { transform: translateY(0); }
-        .grabber { width: 42px; height: 5px; border-radius: 999px; background: #d9e0d4; margin: 4px auto 12px; }
+        .grabber { width: 42px; height: 5px; border-radius: 999px; background: #d4dde8; margin: 4px auto 12px; }
         .sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
         .sheet-head .eyebrow { font-size: 0.72rem; font-weight: 800; color: var(--leaf); }
         .sheet-head h3 { margin: 3px 0 0; font-size: 1.32rem; font-weight: 800; letter-spacing: -0.02em; }
         .x { width: 44px; height: 44px; border-radius: 999px; color: var(--muted); font-size: 1.4rem; font-weight: 800; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .x:active { background: #f4ead2; }
+        .x:active { background: #e8eef6; }
 
         /* ── 폼 ── */
         .field { margin-bottom: 13px; }
@@ -247,7 +247,7 @@
             width: 100%; border: 1px solid var(--line); background: #fff; border-radius: 14px;
             padding: 13px 14px; font-weight: 600; outline: none;
         }
-        .field input:focus, .field select:focus { border-color: var(--leaf); box-shadow: 0 0 0 4px rgba(20,83,45,0.1); }
+        .field input:focus, .field select:focus { border-color: var(--leaf); box-shadow: 0 0 0 4px rgba(14,48,80,0.1); }
         .field input.big { font-size: 1.25rem; font-weight: 800; }
         .field .hint { margin-top: 6px; font-size: 0.72rem; color: var(--muted); font-weight: 500; }
         .field .preview { margin-top: 6px; font-size: 0.85rem; font-weight: 800; color: var(--leaf); }
@@ -257,7 +257,7 @@
         .btn {
             flex: 1; padding: 14px; border-radius: 16px; font-size: 0.92rem; font-weight: 800; text-align: center;
         }
-        .btn.ghost { background: #edf2e9; color: var(--ink); } .btn.ghost:active { background: #e1eadc; }
+        .btn.ghost { background: #e8edf3; color: var(--ink); } .btn.ghost:active { background: #dde5ee; }
         .btn.go { background: var(--leaf); color: #fff; } .btn.go:active { background: var(--leaf-dark); }
         .btn.del { background: #fef2f2; color: var(--danger); } .btn.del:active { background: #fee2e2; }
 
@@ -266,9 +266,9 @@
         .entry-list .lbl { font-size: 0.72rem; font-weight: 800; color: var(--muted); margin-bottom: 8px; }
         .ei {
             display: flex; align-items: flex-start; gap: 10px; padding: 12px; border-radius: 14px;
-            background: #f8f5ee; margin-bottom: 8px;
+            background: #eef2f7; margin-bottom: 8px;
         }
-        .ei.active { background: #eafaf0; box-shadow: 0 0 0 1.5px var(--leaf); }
+        .ei.active { background: #e9f1fb; box-shadow: 0 0 0 1.5px var(--leaf); }
         .ei .info { flex: 1; min-width: 0; }
         .ei .info .top { display: flex; align-items: baseline; gap: 8px; }
         .ei .info .a { font-size: 0.95rem; font-weight: 800; }
@@ -287,16 +287,16 @@
         .pick {
             flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
             padding: 16px 10px; border-radius: 16px; border: 1.5px dashed var(--leaf);
-            background: rgba(31,122,77,0.05); color: var(--leaf-dark); font-weight: 800; font-size: 0.82rem;
+            background: rgba(21,70,110,0.05); color: var(--leaf-dark); font-weight: 800; font-size: 0.82rem;
         }
-        .pick:active { background: rgba(31,122,77,0.12); }
+        .pick:active { background: rgba(21,70,110,0.12); }
         .pick .pico { font-size: 1.5rem; }
 
         .ocr-status {
-            border-radius: 14px; background: #f8f5ee; padding: 13px 14px; margin-bottom: 12px;
+            border-radius: 14px; background: #eef2f7; padding: 13px 14px; margin-bottom: 12px;
             font-size: 0.82rem; font-weight: 600; color: var(--ink);
         }
-        .ocr-status .bar { height: 7px; border-radius: 999px; background: #e4e9df; margin-top: 9px; overflow: hidden; }
+        .ocr-status .bar { height: 7px; border-radius: 999px; background: #e2e8f0; margin-top: 9px; overflow: hidden; }
         .ocr-status .bar > i { display: block; height: 100%; width: 0; background: var(--leaf); border-radius: 999px; transition: width 0.25s ease; }
         .ocr-status.err { background: #fef2f2; color: var(--danger); }
         .ocr-thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -312,7 +312,7 @@
         .rcard .rc-head .rc-date { font-size: 1.05rem; font-weight: 800; }
         .rcard .rc-head .rc-amt { margin-left: auto; font-size: 1.05rem; font-weight: 800; color: var(--leaf); }
         .badge { font-size: 0.6rem; font-weight: 800; padding: 3px 7px; border-radius: 999px; }
-        .badge.ok { background: #e8f6ee; color: var(--leaf-dark); }
+        .badge.ok { background: #e6eef9; color: var(--leaf-dark); }
         .badge.fix { background: #fff3da; color: var(--amber-dark); }
         .badge.multi { background: #eef3fb; color: #2563eb; }
         .badge.dup { background: #fdecec; color: #c0392b; }
@@ -328,7 +328,7 @@
         .rc-raw summary { font-size: 0.72rem; font-weight: 800; color: var(--muted); cursor: pointer; }
         .rc-raw pre {
             margin: 8px 0 0; white-space: pre-wrap; word-break: break-all;
-            font-size: 0.66rem; line-height: 1.4; color: #56625a; background: #f8f5ee;
+            font-size: 0.66rem; line-height: 1.4; color: #5a6573; background: #eef2f7;
             border-radius: 10px; padding: 10px; max-height: 160px; overflow: auto;
         }
         .rc-actions { display: flex; gap: 8px; margin-top: 12px; }
@@ -390,7 +390,7 @@
 
         <!-- 검색 -->
         <div class="search">
-            <svg width="18" height="18" fill="none" stroke="#6f7b72" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+            <svg width="18" height="18" fill="none" stroke="#6b7682" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
             <input type="search" id="search-bar" placeholder="인원·메모·금액 검색" aria-label="기록 검색">
             <button id="search-clear" class="clr hidden" aria-label="검색 초기화">✕</button>
         </div>

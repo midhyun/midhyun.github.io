@@ -10,7 +10,7 @@
  *     로컬 테스트 시: npx serve . 또는 VS Code Live Server를 사용하세요.
  */
 
-const CACHE_NAME = 'overtime-ledger-v5';
+const CACHE_NAME = 'overtime-ledger-v6';
 
 // 캐시할 정적 자산 목록
 const PRECACHE_ASSETS = [
