@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/favicon.ico">
+    <meta name="theme-color" content="#1f7a4d">
+    <title>법인카드 식대 관리</title>
+    <script>
+        // 디바이스에 맞는 버전으로 자동 이동 (모바일/터치 → 모바일판, 그 외 → 데스크톱판)
+        // history.replaceState 대신 location.replace로 뒤로가기 루프 방지.
+        (function () {
+            try {
+                var isMobile = window.matchMedia('(max-width: 768px)').matches
+                    || window.matchMedia('(pointer: coarse)').matches
+                    || /Android|iPhone|iPad|iPod|Mobile|Silk/i.test(navigator.userAgent);
+                location.replace(isMobile ? './m_expense_ledger.html' : './expense_ledger.html');
+            } catch (e) { /* JS 비활성/실패 시 아래 수동 링크로 이동 */ }
+        })();
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px;
+            color: #162019;
+            font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                radial-gradient(circle at 15% 8%, rgba(232, 168, 32, 0.18), transparent 22rem),
+                radial-gradient(circle at 88% 10%, rgba(31, 122, 77, 0.16), transparent 20rem),
+                linear-gradient(155deg, #f7f0dd 0%, #edf4e8 55%, #f9f6ec 100%);
+            -webkit-font-smoothing: antialiased;
+        }
+        .card {
+            width: 100%; max-width: 420px;
+            background: rgba(255, 253, 246, 0.9);
+            border: 1px solid #dce5da;
+            border-radius: 24px;
+            padding: 32px 28px;
+            box-shadow: 0 24px 70px rgba(25, 55, 37, 0.12);
+            text-align: center;
+        }
+        .eyebrow { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.18em; color: #166534; }
+        h1 { margin: 8px 0 4px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+        p.sub { margin: 0 0 22px; font-size: 0.9rem; color: #6f7b72; font-weight: 500; }
+        .links { display: flex; flex-direction: column; gap: 12px; }
+        a.btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 16px; border-radius: 16px; text-decoration: none; font-weight: 800; font-size: 1rem;
+        }
+        a.btn.mobile { background: linear-gradient(135deg, #1f7a4d, #145436); color: #fff; }
+        a.btn.desktop { background: #fffdf6; color: #162019; border: 1px solid #dce5da; }
+        a.btn .ic { font-size: 1.2rem; }
+        .hint { margin-top: 18px; font-size: 0.76rem; color: #b7bfae; font-weight: 600; }
+    </style>
+</head>
+
+<body>
+    <main class="card">
+        <p class="eyebrow">CORPORATE CARD LEDGER</p>
+        <h1>법인카드 식대 관리</h1>
+        <p class="sub">사용하실 버전을 선택하세요</p>
+        <div class="links">
+            <a class="btn mobile" href="./m_expense_ledger.html"><span class="ic">📱</span> 모바일 (영수증 스캔)</a>
+            <a class="btn desktop" href="./expense_ledger.html"><span class="ic">🖥️</span> 데스크톱 (백오피스)</a>
+        </div>
+        <p class="hint">기기에 맞는 화면으로 자동 이동합니다. 이동하지 않으면 위에서 선택하세요.</p>
+    </main>
+</body>
+
+</html>
