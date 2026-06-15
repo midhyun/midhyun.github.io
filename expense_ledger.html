@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="favicon" href="/favicon.ico" sizes="any">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/icon-180.png">
     <link rel="manifest" href="./manifest.json">
@@ -756,11 +757,15 @@
         .modal-inner {
             max-height: 90vh;
             overflow-y: auto;
-            scrollbar-width: none;       /* Firefox */
-            -ms-overflow-style: none;    /* IE / Edge (레거시) */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE / Edge (레거시) */
         }
+
         .modal-inner::-webkit-scrollbar {
-            display: none;               /* Chrome / Safari / Opera */
+            display: none;
+            /* Chrome / Safari / Opera */
         }
 
         /* Holiday badge on calendar */
@@ -783,12 +788,14 @@
             gap: 0.75rem;
             padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--line);
-            background: rgba(255,255,255,0.6);
+            background: rgba(255, 255, 255, 0.6);
             transition: background 0.12s;
         }
+
         .search-result-item:hover {
             background: #fdf3d8;
         }
+
         .search-result-item:last-child {
             border-bottom: 0;
         }
@@ -871,7 +878,9 @@
                 <input type="search" id="search-bar" placeholder="인원·메모로 검색 (예: 김철수)"
                     class="min-w-0 flex-1 bg-transparent text-sm font-medium text-[#102234] outline-none"
                     aria-label="기록 검색">
-                <button id="search-clear-btn" class="hidden flex-shrink-0 rounded-full text-[#6b7682] hover:bg-[#e8eef6] p-1 text-sm font-bold" aria-label="검색 초기화">✕</button>
+                <button id="search-clear-btn"
+                    class="hidden flex-shrink-0 rounded-full text-[#6b7682] hover:bg-[#e8eef6] p-1 text-sm font-bold"
+                    aria-label="검색 초기화">✕</button>
             </div>
         </div>
 
@@ -967,12 +976,14 @@
                     </div>
                     <div class="flex gap-3">
                         <div class="flex-1">
-                            <label for="expense-merchant" class="mb-1 block text-sm font-bold text-[#102234]">가맹점 번호</label>
+                            <label for="expense-merchant" class="mb-1 block text-sm font-bold text-[#102234]">가맹점
+                                번호</label>
                             <input type="text" id="expense-merchant" placeholder="선택 입력"
                                 class="w-full rounded-2xl border border-[#dde3ec] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
                         </div>
                         <div class="flex-1">
-                            <label for="expense-approval" class="mb-1 block text-sm font-bold text-[#102234]">승인 번호</label>
+                            <label for="expense-approval" class="mb-1 block text-sm font-bold text-[#102234]">승인
+                                번호</label>
                             <input type="text" id="expense-approval" placeholder="선택 입력"
                                 class="w-full rounded-2xl border border-[#dde3ec] bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[#15466e] focus:ring-4 focus:ring-green-900/10">
                         </div>
@@ -1011,825 +1022,822 @@
     </div>
 
     <script>
-    (function () {
-        'use strict';
-        // ── [상수] ──────────────────────────────────────────────────────────────
-        const STORAGE_KEY = 'overtime_dinner_ledger_entries';
-        const DEFAULT_PEOPLE_KEY = 'overtime_dinner_ledger_default_people';
-        const DAYS_KR = ['일', '월', '화', '수', '목', '금', '토'];
-        const SCHEMA_VERSION = 2;
-        const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        (function () {
+            'use strict';
+            // ── [상수] ──────────────────────────────────────────────────────────────
+            const STORAGE_KEY = 'overtime_dinner_ledger_entries';
+            const DEFAULT_PEOPLE_KEY = 'overtime_dinner_ledger_default_people';
+            const DAYS_KR = ['일', '월', '화', '수', '목', '금', '토'];
+            const SCHEMA_VERSION = 2;
+            const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-        /**
-         * 한국 공휴일 (고정 공휴일 + 2024-2028 음력 연동 공휴일)
-         * 음력 공휴일(설날·추석)은 해마다 날짜가 달라 연도별 하드코딩.
-         */
-        const HOLIDAYS = (() => {
-            // 매년 반복되는 고정 공휴일 (MM-DD → 이름)
-            const annual = {
-                '01-01': '신정',
-                '03-01': '삼일절',
-                '05-05': '어린이날',
-                '06-06': '현충일',
-                '08-15': '광복절',
-                '10-03': '개천절',
-                '10-09': '한글날',
-                '12-25': '크리스마스',
-            };
-            // 음력 연동 공휴일 이름 (연도별 YYYY-MM-DD → 이름)
-            const lunarNames = {
-                '2024-02-09':'설날 전날','2024-02-10':'설날','2024-02-11':'설날 다음날',
-                '2025-01-28':'설날 전날','2025-01-29':'설날','2025-01-30':'설날 다음날',
-                '2026-02-16':'설날 전날','2026-02-17':'설날','2026-02-18':'설날 다음날',
-                '2027-02-06':'설날 전날','2027-02-07':'설날','2027-02-08':'설날 다음날',
-                '2028-01-26':'설날 전날','2028-01-27':'설날','2028-01-28':'설날 다음날',
-                '2024-05-15':'부처님 오신날','2025-05-05':'부처님 오신날','2026-05-24':'부처님 오신날','2027-05-13':'부처님 오신날','2028-05-02':'부처님 오신날',
-                '2024-09-16':'추석 전날','2024-09-17':'추석','2024-09-18':'추석 다음날',
-                '2025-10-05':'추석 전날','2025-10-06':'추석','2025-10-07':'추석 다음날',
-                '2026-09-24':'추석 전날','2026-09-25':'추석','2026-09-26':'추석 다음날',
-                '2027-09-14':'추석 전날','2027-09-15':'추석','2027-09-16':'추석 다음날',
-                '2028-10-02':'추석 전날','2028-10-03':'추석','2028-10-04':'추석 다음날',
-            };
+            /**
+             * 한국 공휴일 (고정 공휴일 + 2024-2028 음력 연동 공휴일)
+             * 음력 공휴일(설날·추석)은 해마다 날짜가 달라 연도별 하드코딩.
+             */
+            const HOLIDAYS = (() => {
+                // 매년 반복되는 고정 공휴일 (MM-DD → 이름)
+                const annual = {
+                    '01-01': '신정',
+                    '03-01': '삼일절',
+                    '05-05': '어린이날',
+                    '06-06': '현충일',
+                    '08-15': '광복절',
+                    '10-03': '개천절',
+                    '10-09': '한글날',
+                    '12-25': '크리스마스',
+                };
+                // 음력 연동 공휴일 이름 (연도별 YYYY-MM-DD → 이름)
+                const lunarNames = {
+                    '2024-02-09': '설날 전날', '2024-02-10': '설날', '2024-02-11': '설날 다음날',
+                    '2025-01-28': '설날 전날', '2025-01-29': '설날', '2025-01-30': '설날 다음날',
+                    '2026-02-16': '설날 전날', '2026-02-17': '설날', '2026-02-18': '설날 다음날',
+                    '2027-02-06': '설날 전날', '2027-02-07': '설날', '2027-02-08': '설날 다음날',
+                    '2028-01-26': '설날 전날', '2028-01-27': '설날', '2028-01-28': '설날 다음날',
+                    '2024-05-15': '부처님 오신날', '2025-05-05': '부처님 오신날', '2026-05-24': '부처님 오신날', '2027-05-13': '부처님 오신날', '2028-05-02': '부처님 오신날',
+                    '2024-09-16': '추석 전날', '2024-09-17': '추석', '2024-09-18': '추석 다음날',
+                    '2025-10-05': '추석 전날', '2025-10-06': '추석', '2025-10-07': '추석 다음날',
+                    '2026-09-24': '추석 전날', '2026-09-25': '추석', '2026-09-26': '추석 다음날',
+                    '2027-09-14': '추석 전날', '2027-09-15': '추석', '2027-09-16': '추석 다음날',
+                    '2028-10-02': '추석 전날', '2028-10-03': '추석', '2028-10-04': '추석 다음날',
+                };
 
-            const map = {};
-            // 2024-2028 범위에서 연간 공휴일 전개
-            for (let y = 2024; y <= 2028; y++) {
-                for (const [mmdd, name] of Object.entries(annual)) {
-                    map[`${y}-${mmdd}`] = name;
-                }
-            }
-            // 음력 연동 공휴일 덮어쓰기 (이름 우선)
-            for (const [date, name] of Object.entries(lunarNames)) {
-                map[date] = name;
-            }
-            return map;
-        })();
-
-        // ── 토스트 (초기화 전에 선언 필요)
-        let toastTimer = null;
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            if (!toast) return;
-            toast.textContent = message;
-            toast.className = `fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 rounded-2xl px-6 py-3 text-sm font-bold text-white shadow-2xl toast-show ${type === 'error' ? 'bg-red-700' : type === 'warn' ? 'bg-[#c27b00]' : 'bg-[#102234]'
-                }`;
-            toast.classList.remove('hidden');
-            if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.classList.replace('toast-show', 'toast-hide');
-                setTimeout(() => toast.classList.add('hidden'), 200);
-            }, 1800);
-        }
-
-        // ── [유틸] ───────────────────────────────────────────────────────────────
-        const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-
-        /**
-         * DOM 생성 헬퍼: createElement + className + textContent 한 번에
-         * @param {string} tag
-         * @param {string} [className]
-         * @param {string|number} [text]
-         * @returns {HTMLElement}
-         */
-        const el = (tag, className, text) => {
-            const node = document.createElement(tag);
-            if (className) node.className = className;
-            if (text !== undefined && text !== null) node.textContent = String(text);
-            return node;
-        };
-
-        // 단일 entry 정규화 + 유효성 검사 (실패 시 null)
-        const normalizeEntry = (e) => {
-            if (!e || typeof e !== 'object') return null;
-            const amount = Number(e.amount);
-            if (!Number.isFinite(amount) || amount <= 0) return null;
-            return {
-                id:         (typeof e.id === 'string' && e.id) ? e.id : generateId(),
-                amount,
-                people:     typeof e.people   === 'string' ? e.people   : '',
-                payTime:    typeof e.payTime   === 'string' ? e.payTime  : '',
-                merchant:   typeof e.merchant  === 'string' ? e.merchant : '',
-                approval:   typeof e.approval  === 'string' ? e.approval : '',
-                note:       typeof e.note      === 'string' ? e.note     : '',
-                updatedAt:  typeof e.updatedAt === 'string' ? e.updatedAt : new Date().toISOString()
-            };
-        };
-
-        // 날짜 맵 정규화: 형식 검증 + 각 entry 검증, 건너뛴 개수 반환
-        const migrateRawEntries = (rawEntries) => {
-            const result = {};
-            let skipped = 0;
-            for (const [date, value] of Object.entries(rawEntries || {})) {
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { skipped++; continue; }
-                if (Array.isArray(value)) {
-                    const valid = value.map(normalizeEntry).filter(Boolean);
-                    if (valid.length) result[date] = valid;
-                    skipped += value.length - valid.length;
-                } else if (value && typeof value === 'object' && value.amount !== undefined) {
-                    // 구버전(단일 객체) 호환
-                    const normalized = normalizeEntry(value);
-                    if (normalized) result[date] = [normalized];
-                    else skipped++;
-                } else {
-                    skipped++;
-                }
-            }
-            return { entries: result, skipped };
-        };
-
-        // 스토리지 포맷 통합 처리: { version, data } 또는 구버전(직접 맵)
-        const migrateEntries = (raw) => {
-            const rawData = (raw && typeof raw === 'object' && raw.version !== undefined && raw.data)
-                ? raw.data : raw;
-            return migrateRawEntries(rawData);
-        };
-
-        function loadEntries() {
-            try {
-                const { entries: result, skipped } = migrateEntries(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
-                if (skipped > 0) {
-                    setTimeout(() => showToast(`불러오는 중 잘못된 기록 ${skipped}건을 건너뛰었습니다`, 'warn'), 100);
-                }
-                return result;
-            } catch {
-                setTimeout(() => showToast('저장된 데이터를 불러오는 데 실패했습니다. 빈 상태로 시작합니다.', 'error'), 100);
-                return {};
-            }
-        }
-
-        // ── [상태] ───────────────────────────────────────────────────────────────
-        let currentDate = new Date();
-        let entries = loadEntries();
-        let defaultPeople = localStorage.getItem(DEFAULT_PEOPLE_KEY) || '';
-        let selectedDateStr = null;
-        let editingEntryId = null;
-        let lastFocusedBeforeModal = null;
-
-        // ── [DOM キャッシュ] ──────────────────────────────────────────────────────
-        /** 頻用 DOM 참조를 한 곳에 모아 타이핑 오류를 방지하고 재쿼리를 막습니다 */
-        const dom = {
-            calendarBody:    document.getElementById('calendar-body'),
-            monthDisplay:    document.getElementById('current-month-display'),
-            totalSpentEl:    document.getElementById('total-spent'),
-            entryCountEl:    document.getElementById('entry-count'),
-            avgSpentEl:      document.getElementById('avg-spent'),
-            defaultNamesInput: document.getElementById('default-names-input'),
-            modal:           document.getElementById('modal'),
-            modalDateTitle:  document.getElementById('modal-date-title'),
-            modalUpdatedAt:  document.getElementById('modal-updated-at'),
-            amountInput:     document.getElementById('expense-amount'),
-            amountPreview:   document.getElementById('amount-preview'),
-            peopleInput:     document.getElementById('expense-people'),
-            noteInput:       document.getElementById('expense-note'),
-            entryListWrap:   document.getElementById('entry-list-wrap'),
-            entryList:       document.getElementById('entry-list'),
-            btnAddMode:      document.getElementById('btn-add-mode'),
-            btnEditMode:     document.getElementById('btn-edit-mode'),
-            formTitle:       document.getElementById('form-title'),
-            payTimeInput:    document.getElementById('expense-pay-time'),
-            merchantInput:   document.getElementById('expense-merchant'),
-            approvalInput:   document.getElementById('expense-approval'),
-            searchBar:       document.getElementById('search-bar'),
-            searchResults:   document.getElementById('search-results'),
-        };
-        // 하위 호환 별칭 (기존 코드 변경 최소화)
-        const calendarBody    = dom.calendarBody;
-        const monthDisplay    = dom.monthDisplay;
-        const totalSpentEl    = dom.totalSpentEl;
-        const entryCountEl    = dom.entryCountEl;
-        const avgSpentEl      = dom.avgSpentEl;
-        const defaultNamesInput = dom.defaultNamesInput;
-        const modal           = dom.modal;
-        const modalDateTitle  = dom.modalDateTitle;
-        const modalUpdatedAt  = dom.modalUpdatedAt;
-        const amountInput     = dom.amountInput;
-        const amountPreview   = dom.amountPreview;
-        const peopleInput     = dom.peopleInput;
-        const noteInput       = dom.noteInput;
-        const entryListWrap   = dom.entryListWrap;
-        const entryList       = dom.entryList;
-        const btnAddMode      = dom.btnAddMode;
-        const btnEditMode     = dom.btnEditMode;
-
-        // ── [포맷 헬퍼] ──────────────────────────────────────────────────────────
-        const toDateStr = (year, monthIndex, day) =>
-            `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-        const formatWon = (amount) => `${Number(amount || 0).toLocaleString('ko-KR')}원`;
-
-        // 시간대 안전: YYYY-MM-DD를 로컬 시간 기준으로 파싱
-        const getDayOfWeek = (dateStr) => {
-            const [y, m, d] = dateStr.split('-').map(Number);
-            return DAYS_KR[new Date(y, m - 1, d).getDay()];
-        };
-
-        // 중복 인원 제거 후 카운트
-        const countPeople = (people) => {
-            if (!people) return 0;
-            const names = people.split(',').map(p => p.trim()).filter(Boolean);
-            return new Set(names).size;
-        };
-
-        // ── [Store: 데이터 접근] ─────────────────────────────────────────────────
-        const getMonthlyDays = () => {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            return Object.entries(entries)
-                .filter(([date]) => {
-                    const [y, m] = date.split('-').map(Number);
-                    return y === year && m === month + 1;
-                })
-                .sort(([a], [b]) => a.localeCompare(b));
-        };
-
-        const saveEntries = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            version: SCHEMA_VERSION,
-            savedAt: new Date().toISOString(),
-            data: entries
-        }));
-
-        // ── [기본 인원 저장] ─────────────────────────────────────────────────────
-        const saveDefaultPeople = () => {
-            defaultPeople = defaultNamesInput.value.trim();
-            localStorage.setItem(DEFAULT_PEOPLE_KEY, defaultPeople);
-            const msg = document.getElementById('default-saved-msg');
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 800);
-        };
-
-        // ── [통계] ───────────────────────────────────────────────────────────────
-        const updateStats = () => {
-            const days = getMonthlyDays();
-            const dayCount = days.length;
-            const total = days.reduce((sum, [, es]) =>
-                sum + (es || []).reduce((s, e) => s + Number(e.amount || 0), 0), 0);
-            const avg = dayCount ? Math.round(total / dayCount) : 0;
-
-            totalSpentEl.textContent = formatWon(total);
-            entryCountEl.textContent = `${dayCount.toLocaleString('ko-KR')}일`;
-            avgSpentEl.textContent = formatWon(avg);
-        };
-
-        // ── [달력 렌더링] ────────────────────────────────────────────────────────
-        const renderCalendar = () => {
-            calendarBody.innerHTML = '';
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const today = new Date();
-            const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
-
-            monthDisplay.textContent = `${year}년 ${month + 1}월`;
-
-            // 첫 주 앞 빈 칸
-            for (let i = 0; i < firstDay; i++) {
-                calendarBody.appendChild(el('div', 'day-cell bg-[#eef2f8]/70'));
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = toDateStr(year, month, day);
-                const dayOfWeek = new Date(year, month, day).getDay();
-                const isToday = dateStr === todayStr;
-                const isSunday = dayOfWeek === 0;
-                const isSaturday = dayOfWeek === 6;
-                const isWeekend = isSunday || isSaturday;
-                const dayEntries = entries[dateStr] || [];
-                const holiday = HOLIDAYS[dateStr] || null;
-
-                const cell = el('button', `day-cell flex min-w-0 flex-col p-3 text-left ${
-                    isToday ? 'bg-green-50' : isWeekend ? 'bg-[#f1f4f9]/80' : 'bg-white/50'
-                }`);
-                cell.type = 'button';
-                cell.onclick = () => openModal(dateStr);
-                if (isToday) cell.setAttribute('aria-current', 'date');
-
-                // 날짜 숫자
-                const dayNum = el('span',
-                    `mb-2 flex h-7 w-7 items-center justify-center rounded-full text-sm font-extrabold ${
-                        isToday     ? 'bg-[#15466e] text-white' :
-                        (isSunday || holiday) ? 'text-red-500' :
-                        isSaturday  ? 'text-blue-500' :
-                                      'text-[#6b7682]'
-                    }`, day);
-                cell.appendChild(dayNum);
-
-                // 공휴일 이름 표시
-                if (holiday) {
-                    cell.appendChild(el('span', 'holiday-badge', holiday));
-                }
-
-                if (dayEntries.length > 0) {
-                    const totalAmt = dayEntries.reduce((s, e) => s + Number(e.amount || 0), 0);
-                    cell.appendChild(el('strong', 'truncate text-base font-extrabold text-[#102234]', formatWon(totalAmt)));
-
-                    if (dayEntries.length > 1) {
-                        cell.appendChild(el('span', 'mt-0.5 text-xs font-extrabold text-[#c27b00]', `${dayEntries.length}건`));
+                const map = {};
+                // 2024-2028 범위에서 연간 공휴일 전개
+                for (let y = 2024; y <= 2028; y++) {
+                    for (const [mmdd, name] of Object.entries(annual)) {
+                        map[`${y}-${mmdd}`] = name;
                     }
-
-                    const firstPeople = dayEntries[0].people;
-                    if (firstPeople) {
-                        cell.appendChild(el('span', 'mt-1 truncate text-xs font-bold text-[#15466e]',
-                            dayEntries.length > 1 ? `${firstPeople} 외` : firstPeople));
-                    }
-
-                    if (dayEntries.length === 1 && dayEntries[0].note) {
-                        cell.appendChild(el('span', 'mt-1 truncate text-xs text-[#6b7682]', dayEntries[0].note));
-                    }
-                } else if (!isWeekend && !holiday) {
-                    cell.appendChild(el('span', 'mt-auto text-xs font-bold text-[#aeb6c2]', '미기록'));
                 }
-
-                calendarBody.appendChild(cell);
-            }
-        };
-
-        const refresh = () => { renderCalendar(); updateStats(); };
-
-        // ── [Modal: 폼 상태 전환] ────────────────────────────────────────────────
-        const setAddMode = () => {
-            editingEntryId = null;
-            amountInput.value = '';
-            peopleInput.value = defaultPeople;
-            dom.payTimeInput.value  = '';
-            dom.merchantInput.value = '';
-            dom.approvalInput.value = '';
-            noteInput.value = '';
-            amountPreview.textContent = '';
-            modalUpdatedAt.classList.add('hidden');
-            dom.formTitle.textContent = '새 항목 추가';
-            btnAddMode.classList.remove('hidden');
-            btnEditMode.classList.add('hidden');
-        };
-
-        const setEditMode = (entry) => {
-            editingEntryId = entry.id;
-            amountInput.value = entry.amount;
-            peopleInput.value = entry.people || '';
-            dom.payTimeInput.value  = entry.payTime  || '';
-            dom.merchantInput.value = entry.merchant || '';
-            dom.approvalInput.value = entry.approval || '';
-            noteInput.value = entry.note || '';
-            amountPreview.textContent = entry.amount ? formatWon(entry.amount) : '';
-            dom.formTitle.textContent = '항목 수정';
-            btnAddMode.classList.add('hidden');
-            btnEditMode.classList.remove('hidden');
-            if (entry.updatedAt) {
-                const dt = new Date(entry.updatedAt);
-                modalUpdatedAt.textContent = `${dt.getFullYear()}.${String(dt.getMonth() + 1).padStart(2, '0')}.${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')} 수정`;
-                modalUpdatedAt.classList.remove('hidden');
-            } else {
-                modalUpdatedAt.classList.add('hidden');
-            }
-        };
-
-        // ── [Modal: 기록 목록 렌더링] ────────────────────────────────────────────
-        const renderEntryList = () => {
-            const dayEntries = entries[selectedDateStr] || [];
-            if (dayEntries.length === 0) {
-                entryListWrap.classList.add('hidden');
-                return;
-            }
-            entryListWrap.classList.remove('hidden');
-            entryList.innerHTML = '';
-
-            dayEntries.forEach((entry) => {
-                const isActive = editingEntryId === entry.id;
-                const item = el('div', `flex items-start gap-2 rounded-xl p-3 transition ${
-                    isActive ? 'bg-green-50 ring-1 ring-[#15466e]' : 'bg-[#eef2f7]'
-                }`);
-
-                const info = el('div', 'flex-1 min-w-0');
-
-                // 1행: 금액 + 결제시간
-                const row1 = el('div', 'flex items-baseline gap-2');
-                row1.appendChild(el('strong', 'text-sm font-extrabold text-[#102234]', formatWon(entry.amount)));
-                if (entry.payTime) row1.appendChild(el('span', 'text-xs font-medium text-[#6b7682]', entry.payTime));
-                info.appendChild(row1);
-
-                // 2행: 인원
-                if (entry.people) info.appendChild(el('span', 'block mt-0.5 text-xs font-bold text-[#15466e]', entry.people));
-
-                // 3행: 가맹점·승인번호·메모 (있을 때만)
-                const meta = [];
-                if (entry.merchant) meta.push(`가맹점 ${entry.merchant}`);
-                if (entry.approval) meta.push(`승인 ${entry.approval}`);
-                if (entry.note)     meta.push(entry.note);
-                if (meta.length) info.appendChild(el('span', 'block mt-0.5 truncate text-xs text-[#6b7682]', meta.join(' · ')));
-
-                const editBtn = el('button', 'flex-shrink-0 rounded-lg border border-[#dde3ec] bg-white px-2.5 py-1 text-xs font-bold text-[#102234] hover:bg-[#e8eef6]', '수정');
-                editBtn.onclick = (e) => { e.stopPropagation(); startEdit(entry.id); };
-
-                const delBtn = el('button', 'flex-shrink-0 rounded-lg bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-100', '삭제');
-                delBtn.onclick = (e) => { e.stopPropagation(); deleteEntryById(entry.id); };
-
-                item.appendChild(info);
-                item.appendChild(editBtn);
-                item.appendChild(delBtn);
-                entryList.appendChild(item);
-            });
-        };
-
-        // ── [Modal: 열기 / 닫기] ─────────────────────────────────────────────────
-        const openModal = (dateStr) => {
-            lastFocusedBeforeModal = document.activeElement;
-            selectedDateStr = dateStr;
-            const [year, month, day] = dateStr.split('-');
-            modalDateTitle.textContent = `${year}년 ${Number(month)}월 ${Number(day)}일 (${getDayOfWeek(dateStr)})`;
-            setAddMode();
-            renderEntryList();
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            // 스크롤바가 사라질 때 생기는 레이아웃 시프트 방지:
-            // overflow:hidden 전에 스크롤바 너비만큼 padding-right로 보정
-            const scrollbarW = window.innerWidth - document.documentElement.clientWidth;
-            document.body.style.overflow = 'hidden';
-            document.body.style.paddingRight = scrollbarW > 0 ? `${scrollbarW}px` : '';
-            amountInput.focus();
-        };
-
-        const closeModal = () => {
-            if (modal.classList.contains('hidden')) return;
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            selectedDateStr = null;
-            editingEntryId = null;
-            document.body.style.overflow = '';
-            document.body.style.paddingRight = '';
-            if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === 'function') {
-                lastFocusedBeforeModal.focus();
-            }
-            lastFocusedBeforeModal = null;
-        };
-
-        // ── [CRUD: 항목 추가] ────────────────────────────────────────────────────
-        const addEntry = () => {
-            if (!selectedDateStr) return;
-            const amount = Number(amountInput.value || 0);
-            if (!amount || amount <= 0) { showToast('금액을 입력해주세요', 'warn'); amountInput.focus(); return; }
-            const people   = peopleInput.value.trim();
-            const payTime  = dom.payTimeInput.value.trim();
-            const merchant = dom.merchantInput.value.trim();
-            const approval = dom.approvalInput.value.trim();
-            const note     = noteInput.value.trim();
-
-            if (!entries[selectedDateStr]) entries[selectedDateStr] = [];
-            entries[selectedDateStr].push({
-                id: generateId(),
-                amount,
-                people: people || defaultPeople,
-                payTime,
-                merchant,
-                approval,
-                note,
-                updatedAt: new Date().toISOString()
-            });
-
-            saveEntries();
-            refresh();
-            setAddMode();
-            renderEntryList();
-            showToast('추가되었습니다 ✓');
-        };
-
-        // ── 항목 수정 시작
-        const startEdit = (entryId) => {
-            const dayEntries = entries[selectedDateStr] || [];
-            const entry = dayEntries.find(e => e.id === entryId);
-            if (!entry) return;
-            setEditMode(entry);
-            renderEntryList();
-            amountInput.focus();
-            amountInput.select();
-        };
-
-        // ── 항목 수정 저장
-        const saveEditEntry = () => {
-            if (!selectedDateStr || !editingEntryId) return;
-            const amount = Number(amountInput.value || 0);
-            if (!amount || amount <= 0) { showToast('금액을 입력해주세요', 'warn'); amountInput.focus(); return; }
-            const people   = peopleInput.value.trim();
-            const payTime  = dom.payTimeInput.value.trim();
-            const merchant = dom.merchantInput.value.trim();
-            const approval = dom.approvalInput.value.trim();
-            const note     = noteInput.value.trim();
-            const dayEntries = entries[selectedDateStr] || [];
-            const idx = dayEntries.findIndex(e => e.id === editingEntryId);
-            if (idx !== -1) {
-                dayEntries[idx] = { ...dayEntries[idx], amount, people, payTime, merchant, approval, note, updatedAt: new Date().toISOString() };
-            }
-            saveEntries();
-            refresh();
-            setAddMode();
-            renderEntryList();
-            showToast('수정되었습니다 ✓');
-        };
-
-        // ── 항목 삭제 (확인 다이얼로그)
-        const deleteEntryById = (entryId) => {
-            if (!selectedDateStr || !entries[selectedDateStr]) return;
-            const target = entries[selectedDateStr].find(e => e.id === entryId);
-            if (!target) return;
-            const detail = `금액: ${formatWon(target.amount)}\n인원: ${target.people || '-'}`;
-            if (!confirm(`이 기록을 삭제하시겠습니까?\n${detail}`)) return;
-            const wasEditing = editingEntryId === entryId;
-            entries[selectedDateStr] = entries[selectedDateStr].filter(e => e.id !== entryId);
-            if (entries[selectedDateStr].length === 0) delete entries[selectedDateStr];
-            saveEntries();
-            refresh();
-            if (wasEditing) setAddMode();
-            renderEntryList();
-            showToast('삭제되었습니다');
-        };
-
-        // ── [Exporter: CSV / 백업] ───────────────────────────────────────────────
-        const escapeCsv = (value) => {
-            const text = String(value ?? '');
-            return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-        };
-
-        const buildCsvRows = (days) => {
-            const header = ['날짜', '결제시간', '요일', '사용금액(원)', '인원수', '사용인원', '가맹점번호', '승인번호', '메모'];
-            const rows = [];
-            for (const [date, dayEntries] of days) {
-                for (const entry of (dayEntries || [])) {
-                    rows.push([
-                        date,
-                        entry.payTime  || '',
-                        getDayOfWeek(date),
-                        Number(entry.amount || 0),
-                        countPeople(entry.people),
-                        entry.people   || '',
-                        entry.merchant || '',
-                        entry.approval || '',
-                        entry.note     || ''
-                    ]);
+                // 음력 연동 공휴일 덮어쓰기 (이름 우선)
+                for (const [date, name] of Object.entries(lunarNames)) {
+                    map[date] = name;
                 }
+                return map;
+            })();
+
+            // ── 토스트 (초기화 전에 선언 필요)
+            let toastTimer = null;
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                toast.textContent = message;
+                toast.className = `fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 rounded-2xl px-6 py-3 text-sm font-bold text-white shadow-2xl toast-show ${type === 'error' ? 'bg-red-700' : type === 'warn' ? 'bg-[#c27b00]' : 'bg-[#102234]'
+                    }`;
+                toast.classList.remove('hidden');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toast.classList.replace('toast-show', 'toast-hide');
+                    setTimeout(() => toast.classList.add('hidden'), 200);
+                }, 1800);
             }
-            const total = rows.reduce((sum, row) => sum + Number(row[3]), 0);
-            return [header, ...rows, [], ['합계', '', '', total, '', '', '', '', '']]
-                .map(row => row.map(escapeCsv).join(','))
-                .join('\r\n');
-        };
 
-        const downloadCsv = (csv, filename) => {
-            const csvWithBom = `\uFEFF${csv}`;
-            const blob = new Blob([csvWithBom], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url; link.download = filename;
-            document.body.appendChild(link); link.click(); link.remove();
-            URL.revokeObjectURL(url);
-        };
+            // ── [유틸] ───────────────────────────────────────────────────────────────
+            const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-        const exportCsv = () => {
-            const days = getMonthlyDays();
-            if (!days.length) { showToast('이번 달 기록이 없습니다', 'warn'); return; }
-            const y = currentDate.getFullYear();
-            const m = String(currentDate.getMonth() + 1).padStart(2, '0');
-            downloadCsv(buildCsvRows(days), `야근식대_${y}-${m}.csv`);
-            showToast('CSV 다운로드가 시작됩니다 ✓');
-        };
-
-        const exportAllCsv = () => {
-            const allDays = Object.entries(entries).sort(([a], [b]) => a.localeCompare(b));
-            if (!allDays.length) { showToast('저장된 기록이 없습니다', 'warn'); return; }
-            const today = new Date();
-            const stamp = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
-            downloadCsv(buildCsvRows(allDays), `야근식대_전체_${stamp}.csv`);
-            showToast('전체 CSV 다운로드가 시작됩니다 ✓');
-        };
-
-        // ── 백업 / 복원
-        const backupData = () => {
-            const payload = {
-                version: SCHEMA_VERSION,
-                exportedAt: new Date().toISOString(),
-                entries,
-                defaultPeople
+            /**
+             * DOM 생성 헬퍼: createElement + className + textContent 한 번에
+             * @param {string} tag
+             * @param {string} [className]
+             * @param {string|number} [text]
+             * @returns {HTMLElement}
+             */
+            const el = (tag, className, text) => {
+                const node = document.createElement(tag);
+                if (className) node.className = className;
+                if (text !== undefined && text !== null) node.textContent = String(text);
+                return node;
             };
-            const blob = new Blob([JSON.stringify(payload, null, 2)],
-                { type: 'application/json;charset=utf-8;' });
-            const today = new Date();
-            const stamp = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url; link.download = `야근식대_백업_${stamp}.json`;
-            document.body.appendChild(link); link.click(); link.remove();
-            URL.revokeObjectURL(url);
-            showToast('백업 파일 다운로드가 시작됩니다 ✓');
-        };
 
-        const restoreData = (file) => {
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
+            // 단일 entry 정규화 + 유효성 검사 (실패 시 null)
+            const normalizeEntry = (e) => {
+                if (!e || typeof e !== 'object') return null;
+                const amount = Number(e.amount);
+                if (!Number.isFinite(amount) || amount <= 0) return null;
+                return {
+                    id: (typeof e.id === 'string' && e.id) ? e.id : generateId(),
+                    amount,
+                    people: typeof e.people === 'string' ? e.people : '',
+                    payTime: typeof e.payTime === 'string' ? e.payTime : '',
+                    merchant: typeof e.merchant === 'string' ? e.merchant : '',
+                    approval: typeof e.approval === 'string' ? e.approval : '',
+                    note: typeof e.note === 'string' ? e.note : '',
+                    updatedAt: typeof e.updatedAt === 'string' ? e.updatedAt : new Date().toISOString()
+                };
+            };
+
+            // 날짜 맵 정규화: 형식 검증 + 각 entry 검증, 건너뛴 개수 반환
+            const migrateRawEntries = (rawEntries) => {
+                const result = {};
+                let skipped = 0;
+                for (const [date, value] of Object.entries(rawEntries || {})) {
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { skipped++; continue; }
+                    if (Array.isArray(value)) {
+                        const valid = value.map(normalizeEntry).filter(Boolean);
+                        if (valid.length) result[date] = valid;
+                        skipped += value.length - valid.length;
+                    } else if (value && typeof value === 'object' && value.amount !== undefined) {
+                        // 구버전(단일 객체) 호환
+                        const normalized = normalizeEntry(value);
+                        if (normalized) result[date] = [normalized];
+                        else skipped++;
+                    } else {
+                        skipped++;
+                    }
+                }
+                return { entries: result, skipped };
+            };
+
+            // 스토리지 포맷 통합 처리: { version, data } 또는 구버전(직접 맵)
+            const migrateEntries = (raw) => {
+                const rawData = (raw && typeof raw === 'object' && raw.version !== undefined && raw.data)
+                    ? raw.data : raw;
+                return migrateRawEntries(rawData);
+            };
+
+            function loadEntries() {
                 try {
-                    const backup = JSON.parse(e.target.result);
-                    if (!backup || typeof backup !== 'object') {
-                        throw new Error('올바른 JSON 형식이 아닙니다.');
+                    const { entries: result, skipped } = migrateEntries(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
+                    if (skipped > 0) {
+                        setTimeout(() => showToast(`불러오는 중 잘못된 기록 ${skipped}건을 건너뛰었습니다`, 'warn'), 100);
                     }
-                    if (!backup.entries || typeof backup.entries !== 'object') {
-                        throw new Error('백업 파일에 entries 항목이 없습니다.');
+                    return result;
+                } catch {
+                    setTimeout(() => showToast('저장된 데이터를 불러오는 데 실패했습니다. 빈 상태로 시작합니다.', 'error'), 100);
+                    return {};
+                }
+            }
+
+            // ── [상태] ───────────────────────────────────────────────────────────────
+            let currentDate = new Date();
+            let entries = loadEntries();
+            let defaultPeople = localStorage.getItem(DEFAULT_PEOPLE_KEY) || '';
+            let selectedDateStr = null;
+            let editingEntryId = null;
+            let lastFocusedBeforeModal = null;
+
+            // ── [DOM キャッシュ] ──────────────────────────────────────────────────────
+            /** 頻用 DOM 참조를 한 곳에 모아 타이핑 오류를 방지하고 재쿼리를 막습니다 */
+            const dom = {
+                calendarBody: document.getElementById('calendar-body'),
+                monthDisplay: document.getElementById('current-month-display'),
+                totalSpentEl: document.getElementById('total-spent'),
+                entryCountEl: document.getElementById('entry-count'),
+                avgSpentEl: document.getElementById('avg-spent'),
+                defaultNamesInput: document.getElementById('default-names-input'),
+                modal: document.getElementById('modal'),
+                modalDateTitle: document.getElementById('modal-date-title'),
+                modalUpdatedAt: document.getElementById('modal-updated-at'),
+                amountInput: document.getElementById('expense-amount'),
+                amountPreview: document.getElementById('amount-preview'),
+                peopleInput: document.getElementById('expense-people'),
+                noteInput: document.getElementById('expense-note'),
+                entryListWrap: document.getElementById('entry-list-wrap'),
+                entryList: document.getElementById('entry-list'),
+                btnAddMode: document.getElementById('btn-add-mode'),
+                btnEditMode: document.getElementById('btn-edit-mode'),
+                formTitle: document.getElementById('form-title'),
+                payTimeInput: document.getElementById('expense-pay-time'),
+                merchantInput: document.getElementById('expense-merchant'),
+                approvalInput: document.getElementById('expense-approval'),
+                searchBar: document.getElementById('search-bar'),
+                searchResults: document.getElementById('search-results'),
+            };
+            // 하위 호환 별칭 (기존 코드 변경 최소화)
+            const calendarBody = dom.calendarBody;
+            const monthDisplay = dom.monthDisplay;
+            const totalSpentEl = dom.totalSpentEl;
+            const entryCountEl = dom.entryCountEl;
+            const avgSpentEl = dom.avgSpentEl;
+            const defaultNamesInput = dom.defaultNamesInput;
+            const modal = dom.modal;
+            const modalDateTitle = dom.modalDateTitle;
+            const modalUpdatedAt = dom.modalUpdatedAt;
+            const amountInput = dom.amountInput;
+            const amountPreview = dom.amountPreview;
+            const peopleInput = dom.peopleInput;
+            const noteInput = dom.noteInput;
+            const entryListWrap = dom.entryListWrap;
+            const entryList = dom.entryList;
+            const btnAddMode = dom.btnAddMode;
+            const btnEditMode = dom.btnEditMode;
+
+            // ── [포맷 헬퍼] ──────────────────────────────────────────────────────────
+            const toDateStr = (year, monthIndex, day) =>
+                `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+            const formatWon = (amount) => `${Number(amount || 0).toLocaleString('ko-KR')}원`;
+
+            // 시간대 안전: YYYY-MM-DD를 로컬 시간 기준으로 파싱
+            const getDayOfWeek = (dateStr) => {
+                const [y, m, d] = dateStr.split('-').map(Number);
+                return DAYS_KR[new Date(y, m - 1, d).getDay()];
+            };
+
+            // 중복 인원 제거 후 카운트
+            const countPeople = (people) => {
+                if (!people) return 0;
+                const names = people.split(',').map(p => p.trim()).filter(Boolean);
+                return new Set(names).size;
+            };
+
+            // ── [Store: 데이터 접근] ─────────────────────────────────────────────────
+            const getMonthlyDays = () => {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                return Object.entries(entries)
+                    .filter(([date]) => {
+                        const [y, m] = date.split('-').map(Number);
+                        return y === year && m === month + 1;
+                    })
+                    .sort(([a], [b]) => a.localeCompare(b));
+            };
+
+            const saveEntries = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                version: SCHEMA_VERSION,
+                savedAt: new Date().toISOString(),
+                data: entries
+            }));
+
+            // ── [기본 인원 저장] ─────────────────────────────────────────────────────
+            const saveDefaultPeople = () => {
+                defaultPeople = defaultNamesInput.value.trim();
+                localStorage.setItem(DEFAULT_PEOPLE_KEY, defaultPeople);
+                const msg = document.getElementById('default-saved-msg');
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 800);
+            };
+
+            // ── [통계] ───────────────────────────────────────────────────────────────
+            const updateStats = () => {
+                const days = getMonthlyDays();
+                const dayCount = days.length;
+                const total = days.reduce((sum, [, es]) =>
+                    sum + (es || []).reduce((s, e) => s + Number(e.amount || 0), 0), 0);
+                const avg = dayCount ? Math.round(total / dayCount) : 0;
+
+                totalSpentEl.textContent = formatWon(total);
+                entryCountEl.textContent = `${dayCount.toLocaleString('ko-KR')}일`;
+                avgSpentEl.textContent = formatWon(avg);
+            };
+
+            // ── [달력 렌더링] ────────────────────────────────────────────────────────
+            const renderCalendar = () => {
+                calendarBody.innerHTML = '';
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const today = new Date();
+                const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+
+                monthDisplay.textContent = `${year}년 ${month + 1}월`;
+
+                // 첫 주 앞 빈 칸
+                for (let i = 0; i < firstDay; i++) {
+                    calendarBody.appendChild(el('div', 'day-cell bg-[#eef2f8]/70'));
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = toDateStr(year, month, day);
+                    const dayOfWeek = new Date(year, month, day).getDay();
+                    const isToday = dateStr === todayStr;
+                    const isSunday = dayOfWeek === 0;
+                    const isSaturday = dayOfWeek === 6;
+                    const isWeekend = isSunday || isSaturday;
+                    const dayEntries = entries[dateStr] || [];
+                    const holiday = HOLIDAYS[dateStr] || null;
+
+                    const cell = el('button', `day-cell flex min-w-0 flex-col p-3 text-left ${isToday ? 'bg-green-50' : isWeekend ? 'bg-[#f1f4f9]/80' : 'bg-white/50'
+                        }`);
+                    cell.type = 'button';
+                    cell.onclick = () => openModal(dateStr);
+                    if (isToday) cell.setAttribute('aria-current', 'date');
+
+                    // 날짜 숫자
+                    const dayNum = el('span',
+                        `mb-2 flex h-7 w-7 items-center justify-center rounded-full text-sm font-extrabold ${isToday ? 'bg-[#15466e] text-white' :
+                            (isSunday || holiday) ? 'text-red-500' :
+                                isSaturday ? 'text-blue-500' :
+                                    'text-[#6b7682]'
+                        }`, day);
+                    cell.appendChild(dayNum);
+
+                    // 공휴일 이름 표시
+                    if (holiday) {
+                        cell.appendChild(el('span', 'holiday-badge', holiday));
                     }
-                    const { entries: migrated, skipped } = migrateEntries(backup.entries);
-                    const count = Object.values(migrated).reduce((s, es) => s + (es || []).length, 0);
-                    if (count === 0) {
-                        throw new Error('복원할 수 있는 유효한 기록이 없습니다.');
+
+                    if (dayEntries.length > 0) {
+                        const totalAmt = dayEntries.reduce((s, e) => s + Number(e.amount || 0), 0);
+                        cell.appendChild(el('strong', 'truncate text-base font-extrabold text-[#102234]', formatWon(totalAmt)));
+
+                        if (dayEntries.length > 1) {
+                            cell.appendChild(el('span', 'mt-0.5 text-xs font-extrabold text-[#c27b00]', `${dayEntries.length}건`));
+                        }
+
+                        const firstPeople = dayEntries[0].people;
+                        if (firstPeople) {
+                            cell.appendChild(el('span', 'mt-1 truncate text-xs font-bold text-[#15466e]',
+                                dayEntries.length > 1 ? `${firstPeople} 외` : firstPeople));
+                        }
+
+                        if (dayEntries.length === 1 && dayEntries[0].note) {
+                            cell.appendChild(el('span', 'mt-1 truncate text-xs text-[#6b7682]', dayEntries[0].note));
+                        }
+                    } else if (!isWeekend && !holiday) {
+                        cell.appendChild(el('span', 'mt-auto text-xs font-bold text-[#aeb6c2]', '미기록'));
                     }
-                    const msg = skipped > 0
-                        ? `백업 파일의 기록 ${count}건을 복원합니다. (${skipped}건은 형식 오류로 제외)\n현재 데이터에 덮어씁니다. 계속하시겠습니까?`
-                        : `백업 파일의 기록 ${count}건을 복원합니다.\n현재 데이터에 덮어씁니다. 계속하시겠습니까?`;
-                    if (!confirm(msg)) return;
-                    entries = migrated;
-                    if (typeof backup.defaultPeople === 'string') {
-                        defaultPeople = backup.defaultPeople;
-                        localStorage.setItem(DEFAULT_PEOPLE_KEY, defaultPeople);
-                        defaultNamesInput.value = defaultPeople;
-                    }
-                    saveEntries();
-                    refresh();
-                    showToast(`${count}건의 데이터를 복원했습니다 ✓`);
-                } catch (err) {
-                    showToast(`복원 실패: ${err.message}`, 'error');
+
+                    calendarBody.appendChild(cell);
                 }
             };
-            reader.readAsText(file);
-            document.getElementById('restore-input').value = '';
-        };
 
-        // ── [이벤트 바인딩] ──────────────────────────────────────────────────────
-        document.getElementById('save-default-names').onclick = saveDefaultPeople;
-        document.getElementById('export-csv').onclick = exportCsv;
-        document.getElementById('export-all-csv').onclick = exportAllCsv;
-        document.getElementById('backup-btn').onclick = backupData;
-        document.getElementById('restore-input').addEventListener('change', (e) => restoreData(e.target.files[0]));
+            const refresh = () => { renderCalendar(); updateStats(); };
 
-        document.getElementById('add-expense-btn').onclick = addEntry;
-        document.getElementById('save-expense-btn').onclick = saveEditEntry;
-        document.getElementById('delete-editing-btn').onclick = () => { if (editingEntryId) deleteEntryById(editingEntryId); };
-        document.getElementById('cancel-edit-btn').onclick = () => { setAddMode(); renderEntryList(); };
-        document.getElementById('modal-x-btn').onclick = closeModal;
-        document.getElementById('close-modal-btn').onclick = closeModal;
+            // ── [Modal: 폼 상태 전환] ────────────────────────────────────────────────
+            const setAddMode = () => {
+                editingEntryId = null;
+                amountInput.value = '';
+                peopleInput.value = defaultPeople;
+                dom.payTimeInput.value = '';
+                dom.merchantInput.value = '';
+                dom.approvalInput.value = '';
+                noteInput.value = '';
+                amountPreview.textContent = '';
+                modalUpdatedAt.classList.add('hidden');
+                dom.formTitle.textContent = '새 항목 추가';
+                btnAddMode.classList.remove('hidden');
+                btnEditMode.classList.add('hidden');
+            };
 
-        document.getElementById('prev-month').onclick = () => {
-            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); refresh();
-        };
-        document.getElementById('next-month').onclick = () => {
-            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); refresh();
-        };
-        document.getElementById('today-btn').onclick = () => { currentDate = new Date(); refresh(); };
+            const setEditMode = (entry) => {
+                editingEntryId = entry.id;
+                amountInput.value = entry.amount;
+                peopleInput.value = entry.people || '';
+                dom.payTimeInput.value = entry.payTime || '';
+                dom.merchantInput.value = entry.merchant || '';
+                dom.approvalInput.value = entry.approval || '';
+                noteInput.value = entry.note || '';
+                amountPreview.textContent = entry.amount ? formatWon(entry.amount) : '';
+                dom.formTitle.textContent = '항목 수정';
+                btnAddMode.classList.add('hidden');
+                btnEditMode.classList.remove('hidden');
+                if (entry.updatedAt) {
+                    const dt = new Date(entry.updatedAt);
+                    modalUpdatedAt.textContent = `${dt.getFullYear()}.${String(dt.getMonth() + 1).padStart(2, '0')}.${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')} 수정`;
+                    modalUpdatedAt.classList.remove('hidden');
+                } else {
+                    modalUpdatedAt.classList.add('hidden');
+                }
+            };
 
-        defaultNamesInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveDefaultPeople(); });
+            // ── [Modal: 기록 목록 렌더링] ────────────────────────────────────────────
+            const renderEntryList = () => {
+                const dayEntries = entries[selectedDateStr] || [];
+                if (dayEntries.length === 0) {
+                    entryListWrap.classList.add('hidden');
+                    return;
+                }
+                entryListWrap.classList.remove('hidden');
+                entryList.innerHTML = '';
 
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
-        });
+                dayEntries.forEach((entry) => {
+                    const isActive = editingEntryId === entry.id;
+                    const item = el('div', `flex items-start gap-2 rounded-xl p-3 transition ${isActive ? 'bg-green-50 ring-1 ring-[#15466e]' : 'bg-[#eef2f7]'
+                        }`);
 
-        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+                    const info = el('div', 'flex-1 min-w-0');
 
-        // 금액 실시간 미리보기
-        amountInput.addEventListener('input', () => {
-            const val = Number(amountInput.value || 0);
-            amountPreview.textContent = val > 0 ? formatWon(val) : '';
-        });
+                    // 1행: 금액 + 결제시간
+                    const row1 = el('div', 'flex items-baseline gap-2');
+                    row1.appendChild(el('strong', 'text-sm font-extrabold text-[#102234]', formatWon(entry.amount)));
+                    if (entry.payTime) row1.appendChild(el('span', 'text-xs font-medium text-[#6b7682]', entry.payTime));
+                    info.appendChild(row1);
 
-        // ── 모달 포커스 트랩 (Tab 키 순환)
-        const handleFocusTrap = (e) => {
-            if (e.key !== 'Tab') return;
-            if (modal.classList.contains('hidden')) return;
-            const focusables = Array.from(modal.querySelectorAll(FOCUSABLE_SELECTOR))
-                .filter(elem => !elem.disabled && elem.offsetParent !== null);
-            if (!focusables.length) return;
-            const first = focusables[0];
-            const last = focusables[focusables.length - 1];
-            if (e.shiftKey && document.activeElement === first) {
-                e.preventDefault();
-                last.focus();
-            } else if (!e.shiftKey && document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-            }
-        };
-        window.addEventListener('keydown', handleFocusTrap);
+                    // 2행: 인원
+                    if (entry.people) info.appendChild(el('span', 'block mt-0.5 text-xs font-bold text-[#15466e]', entry.people));
 
-        // ── 모달 폼 Enter 키 → 추가/저장
-        const handleModalEnter = (e) => {
-            if (e.key !== 'Enter') return;
-            e.preventDefault();
-            if (editingEntryId) saveEditEntry();
-            else addEntry();
-        };
-        [amountInput, peopleInput, dom.payTimeInput, dom.merchantInput, dom.approvalInput, noteInput].forEach(input =>
-            input.addEventListener('keydown', handleModalEnter));
+                    // 3행: 가맹점·승인번호·메모 (있을 때만)
+                    const meta = [];
+                    if (entry.merchant) meta.push(`가맹점 ${entry.merchant}`);
+                    if (entry.approval) meta.push(`승인 ${entry.approval}`);
+                    if (entry.note) meta.push(entry.note);
+                    if (meta.length) info.appendChild(el('span', 'block mt-0.5 truncate text-xs text-[#6b7682]', meta.join(' · ')));
 
-        // ── 달력 화살표 키 네비게이션 (←→↑↓)
-        calendarBody.addEventListener('keydown', (e) => {
-            if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
-            const cells = Array.from(calendarBody.querySelectorAll('button.day-cell'));
-            const currentIdx = cells.indexOf(document.activeElement);
-            if (currentIdx === -1) return;
-            let nextIdx = currentIdx;
-            switch (e.key) {
-                case 'ArrowLeft':  nextIdx = currentIdx - 1; break;
-                case 'ArrowRight': nextIdx = currentIdx + 1; break;
-                case 'ArrowUp':    nextIdx = currentIdx - 7; break;
-                case 'ArrowDown':  nextIdx = currentIdx + 7; break;
-            }
-            e.preventDefault();
-            if (nextIdx >= 0 && nextIdx < cells.length) cells[nextIdx].focus();
-        });
+                    const editBtn = el('button', 'flex-shrink-0 rounded-lg border border-[#dde3ec] bg-white px-2.5 py-1 text-xs font-bold text-[#102234] hover:bg-[#e8eef6]', '수정');
+                    editBtn.onclick = (e) => { e.stopPropagation(); startEdit(entry.id); };
 
-        // ── [검색 / 필터] ────────────────────────────────────────────────────────
-        const searchBar         = dom.searchBar;
-        const searchResults     = dom.searchResults;
-        const searchResultList  = document.getElementById('search-result-list');
-        const searchResultCount = document.getElementById('search-result-count');
-        const searchClearBtn    = document.getElementById('search-clear-btn');
-        const calendarMain      = document.querySelector('main.glass');
+                    const delBtn = el('button', 'flex-shrink-0 rounded-lg bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-100', '삭제');
+                    delBtn.onclick = (e) => { e.stopPropagation(); deleteEntryById(entry.id); };
 
-        const renderSearchResults = (query) => {
-            const q = query.trim().toLowerCase();
-            searchResultList.innerHTML = '';
+                    item.appendChild(info);
+                    item.appendChild(editBtn);
+                    item.appendChild(delBtn);
+                    entryList.appendChild(item);
+                });
+            };
 
-            if (!q) {
-                searchResults.classList.add('hidden');
-                calendarMain.classList.remove('hidden');
-                searchClearBtn.classList.add('hidden');
-                return;
-            }
+            // ── [Modal: 열기 / 닫기] ─────────────────────────────────────────────────
+            const openModal = (dateStr) => {
+                lastFocusedBeforeModal = document.activeElement;
+                selectedDateStr = dateStr;
+                const [year, month, day] = dateStr.split('-');
+                modalDateTitle.textContent = `${year}년 ${Number(month)}월 ${Number(day)}일 (${getDayOfWeek(dateStr)})`;
+                setAddMode();
+                renderEntryList();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                // 스크롤바가 사라질 때 생기는 레이아웃 시프트 방지:
+                // overflow:hidden 전에 스크롤바 너비만큼 padding-right로 보정
+                const scrollbarW = window.innerWidth - document.documentElement.clientWidth;
+                document.body.style.overflow = 'hidden';
+                document.body.style.paddingRight = scrollbarW > 0 ? `${scrollbarW}px` : '';
+                amountInput.focus();
+            };
 
-            calendarMain.classList.add('hidden');
-            searchClearBtn.classList.remove('hidden');
+            const closeModal = () => {
+                if (modal.classList.contains('hidden')) return;
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                selectedDateStr = null;
+                editingEntryId = null;
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === 'function') {
+                    lastFocusedBeforeModal.focus();
+                }
+                lastFocusedBeforeModal = null;
+            };
 
-            // 전체 기록에서 쿼리 매칭
-            const matches = [];
-            for (const [date, dayEntries] of Object.entries(entries).sort(([a], [b]) => b.localeCompare(a))) {
-                for (const entry of (dayEntries || [])) {
-                    const inPeople = (entry.people || '').toLowerCase().includes(q);
-                    const inNote   = (entry.note   || '').toLowerCase().includes(q);
-                    const inAmount = String(entry.amount || '').includes(q);
-                    if (inPeople || inNote || inAmount) {
-                        matches.push({ date, entry });
+            // ── [CRUD: 항목 추가] ────────────────────────────────────────────────────
+            const addEntry = () => {
+                if (!selectedDateStr) return;
+                const amount = Number(amountInput.value || 0);
+                if (!amount || amount <= 0) { showToast('금액을 입력해주세요', 'warn'); amountInput.focus(); return; }
+                const people = peopleInput.value.trim();
+                const payTime = dom.payTimeInput.value.trim();
+                const merchant = dom.merchantInput.value.trim();
+                const approval = dom.approvalInput.value.trim();
+                const note = noteInput.value.trim();
+
+                if (!entries[selectedDateStr]) entries[selectedDateStr] = [];
+                entries[selectedDateStr].push({
+                    id: generateId(),
+                    amount,
+                    people: people || defaultPeople,
+                    payTime,
+                    merchant,
+                    approval,
+                    note,
+                    updatedAt: new Date().toISOString()
+                });
+
+                saveEntries();
+                refresh();
+                setAddMode();
+                renderEntryList();
+                showToast('추가되었습니다 ✓');
+            };
+
+            // ── 항목 수정 시작
+            const startEdit = (entryId) => {
+                const dayEntries = entries[selectedDateStr] || [];
+                const entry = dayEntries.find(e => e.id === entryId);
+                if (!entry) return;
+                setEditMode(entry);
+                renderEntryList();
+                amountInput.focus();
+                amountInput.select();
+            };
+
+            // ── 항목 수정 저장
+            const saveEditEntry = () => {
+                if (!selectedDateStr || !editingEntryId) return;
+                const amount = Number(amountInput.value || 0);
+                if (!amount || amount <= 0) { showToast('금액을 입력해주세요', 'warn'); amountInput.focus(); return; }
+                const people = peopleInput.value.trim();
+                const payTime = dom.payTimeInput.value.trim();
+                const merchant = dom.merchantInput.value.trim();
+                const approval = dom.approvalInput.value.trim();
+                const note = noteInput.value.trim();
+                const dayEntries = entries[selectedDateStr] || [];
+                const idx = dayEntries.findIndex(e => e.id === editingEntryId);
+                if (idx !== -1) {
+                    dayEntries[idx] = { ...dayEntries[idx], amount, people, payTime, merchant, approval, note, updatedAt: new Date().toISOString() };
+                }
+                saveEntries();
+                refresh();
+                setAddMode();
+                renderEntryList();
+                showToast('수정되었습니다 ✓');
+            };
+
+            // ── 항목 삭제 (확인 다이얼로그)
+            const deleteEntryById = (entryId) => {
+                if (!selectedDateStr || !entries[selectedDateStr]) return;
+                const target = entries[selectedDateStr].find(e => e.id === entryId);
+                if (!target) return;
+                const detail = `금액: ${formatWon(target.amount)}\n인원: ${target.people || '-'}`;
+                if (!confirm(`이 기록을 삭제하시겠습니까?\n${detail}`)) return;
+                const wasEditing = editingEntryId === entryId;
+                entries[selectedDateStr] = entries[selectedDateStr].filter(e => e.id !== entryId);
+                if (entries[selectedDateStr].length === 0) delete entries[selectedDateStr];
+                saveEntries();
+                refresh();
+                if (wasEditing) setAddMode();
+                renderEntryList();
+                showToast('삭제되었습니다');
+            };
+
+            // ── [Exporter: CSV / 백업] ───────────────────────────────────────────────
+            const escapeCsv = (value) => {
+                const text = String(value ?? '');
+                return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+            };
+
+            const buildCsvRows = (days) => {
+                const header = ['날짜', '결제시간', '요일', '사용금액(원)', '인원수', '사용인원', '가맹점번호', '승인번호', '메모'];
+                const rows = [];
+                for (const [date, dayEntries] of days) {
+                    for (const entry of (dayEntries || [])) {
+                        rows.push([
+                            date,
+                            entry.payTime || '',
+                            getDayOfWeek(date),
+                            Number(entry.amount || 0),
+                            countPeople(entry.people),
+                            entry.people || '',
+                            entry.merchant || '',
+                            entry.approval || '',
+                            entry.note || ''
+                        ]);
                     }
                 }
-            }
+                const total = rows.reduce((sum, row) => sum + Number(row[3]), 0);
+                return [header, ...rows, [], ['합계', '', '', total, '', '', '', '', '']]
+                    .map(row => row.map(escapeCsv).join(','))
+                    .join('\r\n');
+            };
 
-            searchResultCount.textContent = matches.length
-                ? `"${query}" — ${matches.length}건 검색됨`
-                : `"${query}" — 결과 없음`;
-            searchResults.classList.remove('hidden');
+            const downloadCsv = (csv, filename) => {
+                const csvWithBom = `\uFEFF${csv}`;
+                const blob = new Blob([csvWithBom], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url; link.download = filename;
+                document.body.appendChild(link); link.click(); link.remove();
+                URL.revokeObjectURL(url);
+            };
 
-            if (!matches.length) {
-                const empty = el('div', 'px-5 py-6 text-sm font-medium text-center text-[#aeb6c2]', '일치하는 기록이 없습니다.');
-                searchResultList.appendChild(empty);
-                return;
-            }
+            const exportCsv = () => {
+                const days = getMonthlyDays();
+                if (!days.length) { showToast('이번 달 기록이 없습니다', 'warn'); return; }
+                const y = currentDate.getFullYear();
+                const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+                downloadCsv(buildCsvRows(days), `야근식대_${y}-${m}.csv`);
+                showToast('CSV 다운로드가 시작됩니다 ✓');
+            };
 
-            matches.forEach(({ date, entry }) => {
-                const dow = getDayOfWeek(date);
-                const holiday = HOLIDAYS[date] || null;
-                const [y, m, d] = date.split('-').map(Number);
-                const dateLabel = `${y}년 ${m}월 ${d}일 (${dow})${holiday ? ' · ' + holiday : ''}`;
+            const exportAllCsv = () => {
+                const allDays = Object.entries(entries).sort(([a], [b]) => a.localeCompare(b));
+                if (!allDays.length) { showToast('저장된 기록이 없습니다', 'warn'); return; }
+                const today = new Date();
+                const stamp = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                downloadCsv(buildCsvRows(allDays), `야근식대_전체_${stamp}.csv`);
+                showToast('전체 CSV 다운로드가 시작됩니다 ✓');
+            };
 
-                const item = el('div', 'search-result-item cursor-pointer');
-                item.setAttribute('role', 'button');
-                item.setAttribute('tabindex', '0');
-                item.onclick = () => { clearSearch(); openModal(date); };
-                item.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') item.click(); };
+            // ── 백업 / 복원
+            const backupData = () => {
+                const payload = {
+                    version: SCHEMA_VERSION,
+                    exportedAt: new Date().toISOString(),
+                    entries,
+                    defaultPeople
+                };
+                const blob = new Blob([JSON.stringify(payload, null, 2)],
+                    { type: 'application/json;charset=utf-8;' });
+                const today = new Date();
+                const stamp = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url; link.download = `야근식대_백업_${stamp}.json`;
+                document.body.appendChild(link); link.click(); link.remove();
+                URL.revokeObjectURL(url);
+                showToast('백업 파일 다운로드가 시작됩니다 ✓');
+            };
 
-                const left = el('div', 'flex-1 min-w-0');
-                left.appendChild(el('p', 'text-xs font-bold text-[#6b7682]', dateLabel));
+            const restoreData = (file) => {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const backup = JSON.parse(e.target.result);
+                        if (!backup || typeof backup !== 'object') {
+                            throw new Error('올바른 JSON 형식이 아닙니다.');
+                        }
+                        if (!backup.entries || typeof backup.entries !== 'object') {
+                            throw new Error('백업 파일에 entries 항목이 없습니다.');
+                        }
+                        const { entries: migrated, skipped } = migrateEntries(backup.entries);
+                        const count = Object.values(migrated).reduce((s, es) => s + (es || []).length, 0);
+                        if (count === 0) {
+                            throw new Error('복원할 수 있는 유효한 기록이 없습니다.');
+                        }
+                        const msg = skipped > 0
+                            ? `백업 파일의 기록 ${count}건을 복원합니다. (${skipped}건은 형식 오류로 제외)\n현재 데이터에 덮어씁니다. 계속하시겠습니까?`
+                            : `백업 파일의 기록 ${count}건을 복원합니다.\n현재 데이터에 덮어씁니다. 계속하시겠습니까?`;
+                        if (!confirm(msg)) return;
+                        entries = migrated;
+                        if (typeof backup.defaultPeople === 'string') {
+                            defaultPeople = backup.defaultPeople;
+                            localStorage.setItem(DEFAULT_PEOPLE_KEY, defaultPeople);
+                            defaultNamesInput.value = defaultPeople;
+                        }
+                        saveEntries();
+                        refresh();
+                        showToast(`${count}건의 데이터를 복원했습니다 ✓`);
+                    } catch (err) {
+                        showToast(`복원 실패: ${err.message}`, 'error');
+                    }
+                };
+                reader.readAsText(file);
+                document.getElementById('restore-input').value = '';
+            };
 
-                const row = el('div', 'flex items-baseline gap-2 mt-0.5');
-                row.appendChild(el('strong', 'text-sm font-extrabold text-[#102234]', formatWon(entry.amount)));
-                if (entry.people) row.appendChild(el('span', 'text-xs font-bold text-[#15466e]', entry.people));
-                if (entry.note)   row.appendChild(el('span', 'text-xs text-[#6b7682]', entry.note));
-                left.appendChild(row);
+            // ── [이벤트 바인딩] ──────────────────────────────────────────────────────
+            document.getElementById('save-default-names').onclick = saveDefaultPeople;
+            document.getElementById('export-csv').onclick = exportCsv;
+            document.getElementById('export-all-csv').onclick = exportAllCsv;
+            document.getElementById('backup-btn').onclick = backupData;
+            document.getElementById('restore-input').addEventListener('change', (e) => restoreData(e.target.files[0]));
 
-                const badge = el('span', 'flex-shrink-0 text-xs font-bold text-[#6b7682]', getDayOfWeek(date));
-                item.appendChild(left);
-                item.appendChild(badge);
-                searchResultList.appendChild(item);
+            document.getElementById('add-expense-btn').onclick = addEntry;
+            document.getElementById('save-expense-btn').onclick = saveEditEntry;
+            document.getElementById('delete-editing-btn').onclick = () => { if (editingEntryId) deleteEntryById(editingEntryId); };
+            document.getElementById('cancel-edit-btn').onclick = () => { setAddMode(); renderEntryList(); };
+            document.getElementById('modal-x-btn').onclick = closeModal;
+            document.getElementById('close-modal-btn').onclick = closeModal;
+
+            document.getElementById('prev-month').onclick = () => {
+                currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); refresh();
+            };
+            document.getElementById('next-month').onclick = () => {
+                currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); refresh();
+            };
+            document.getElementById('today-btn').onclick = () => { currentDate = new Date(); refresh(); };
+
+            defaultNamesInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveDefaultPeople(); });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
             });
-        };
 
-        const clearSearch = () => {
-            searchBar.value = '';
-            renderSearchResults('');
-        };
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-        let searchDebounce = null;
-        searchBar.addEventListener('input', () => {
-            clearTimeout(searchDebounce);
-            searchDebounce = setTimeout(() => renderSearchResults(searchBar.value), 220);
-        });
-        searchClearBtn.addEventListener('click', () => { clearSearch(); searchBar.focus(); });
+            // 금액 실시간 미리보기
+            amountInput.addEventListener('input', () => {
+                const val = Number(amountInput.value || 0);
+                amountPreview.textContent = val > 0 ? formatWon(val) : '';
+            });
 
-        // ── [초기화] ─────────────────────────────────────────────────────────────
-        defaultNamesInput.value = defaultPeople;
-        refresh();
-    })();
+            // ── 모달 포커스 트랩 (Tab 키 순환)
+            const handleFocusTrap = (e) => {
+                if (e.key !== 'Tab') return;
+                if (modal.classList.contains('hidden')) return;
+                const focusables = Array.from(modal.querySelectorAll(FOCUSABLE_SELECTOR))
+                    .filter(elem => !elem.disabled && elem.offsetParent !== null);
+                if (!focusables.length) return;
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            };
+            window.addEventListener('keydown', handleFocusTrap);
+
+            // ── 모달 폼 Enter 키 → 추가/저장
+            const handleModalEnter = (e) => {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+                if (editingEntryId) saveEditEntry();
+                else addEntry();
+            };
+            [amountInput, peopleInput, dom.payTimeInput, dom.merchantInput, dom.approvalInput, noteInput].forEach(input =>
+                input.addEventListener('keydown', handleModalEnter));
+
+            // ── 달력 화살표 키 네비게이션 (←→↑↓)
+            calendarBody.addEventListener('keydown', (e) => {
+                if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+                const cells = Array.from(calendarBody.querySelectorAll('button.day-cell'));
+                const currentIdx = cells.indexOf(document.activeElement);
+                if (currentIdx === -1) return;
+                let nextIdx = currentIdx;
+                switch (e.key) {
+                    case 'ArrowLeft': nextIdx = currentIdx - 1; break;
+                    case 'ArrowRight': nextIdx = currentIdx + 1; break;
+                    case 'ArrowUp': nextIdx = currentIdx - 7; break;
+                    case 'ArrowDown': nextIdx = currentIdx + 7; break;
+                }
+                e.preventDefault();
+                if (nextIdx >= 0 && nextIdx < cells.length) cells[nextIdx].focus();
+            });
+
+            // ── [검색 / 필터] ────────────────────────────────────────────────────────
+            const searchBar = dom.searchBar;
+            const searchResults = dom.searchResults;
+            const searchResultList = document.getElementById('search-result-list');
+            const searchResultCount = document.getElementById('search-result-count');
+            const searchClearBtn = document.getElementById('search-clear-btn');
+            const calendarMain = document.querySelector('main.glass');
+
+            const renderSearchResults = (query) => {
+                const q = query.trim().toLowerCase();
+                searchResultList.innerHTML = '';
+
+                if (!q) {
+                    searchResults.classList.add('hidden');
+                    calendarMain.classList.remove('hidden');
+                    searchClearBtn.classList.add('hidden');
+                    return;
+                }
+
+                calendarMain.classList.add('hidden');
+                searchClearBtn.classList.remove('hidden');
+
+                // 전체 기록에서 쿼리 매칭
+                const matches = [];
+                for (const [date, dayEntries] of Object.entries(entries).sort(([a], [b]) => b.localeCompare(a))) {
+                    for (const entry of (dayEntries || [])) {
+                        const inPeople = (entry.people || '').toLowerCase().includes(q);
+                        const inNote = (entry.note || '').toLowerCase().includes(q);
+                        const inAmount = String(entry.amount || '').includes(q);
+                        if (inPeople || inNote || inAmount) {
+                            matches.push({ date, entry });
+                        }
+                    }
+                }
+
+                searchResultCount.textContent = matches.length
+                    ? `"${query}" — ${matches.length}건 검색됨`
+                    : `"${query}" — 결과 없음`;
+                searchResults.classList.remove('hidden');
+
+                if (!matches.length) {
+                    const empty = el('div', 'px-5 py-6 text-sm font-medium text-center text-[#aeb6c2]', '일치하는 기록이 없습니다.');
+                    searchResultList.appendChild(empty);
+                    return;
+                }
+
+                matches.forEach(({ date, entry }) => {
+                    const dow = getDayOfWeek(date);
+                    const holiday = HOLIDAYS[date] || null;
+                    const [y, m, d] = date.split('-').map(Number);
+                    const dateLabel = `${y}년 ${m}월 ${d}일 (${dow})${holiday ? ' · ' + holiday : ''}`;
+
+                    const item = el('div', 'search-result-item cursor-pointer');
+                    item.setAttribute('role', 'button');
+                    item.setAttribute('tabindex', '0');
+                    item.onclick = () => { clearSearch(); openModal(date); };
+                    item.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') item.click(); };
+
+                    const left = el('div', 'flex-1 min-w-0');
+                    left.appendChild(el('p', 'text-xs font-bold text-[#6b7682]', dateLabel));
+
+                    const row = el('div', 'flex items-baseline gap-2 mt-0.5');
+                    row.appendChild(el('strong', 'text-sm font-extrabold text-[#102234]', formatWon(entry.amount)));
+                    if (entry.people) row.appendChild(el('span', 'text-xs font-bold text-[#15466e]', entry.people));
+                    if (entry.note) row.appendChild(el('span', 'text-xs text-[#6b7682]', entry.note));
+                    left.appendChild(row);
+
+                    const badge = el('span', 'flex-shrink-0 text-xs font-bold text-[#6b7682]', getDayOfWeek(date));
+                    item.appendChild(left);
+                    item.appendChild(badge);
+                    searchResultList.appendChild(item);
+                });
+            };
+
+            const clearSearch = () => {
+                searchBar.value = '';
+                renderSearchResults('');
+            };
+
+            let searchDebounce = null;
+            searchBar.addEventListener('input', () => {
+                clearTimeout(searchDebounce);
+                searchDebounce = setTimeout(() => renderSearchResults(searchBar.value), 220);
+            });
+            searchClearBtn.addEventListener('click', () => { clearSearch(); searchBar.focus(); });
+
+            // ── [초기화] ─────────────────────────────────────────────────────────────
+            defaultNamesInput.value = defaultPeople;
+            refresh();
+        })();
     </script>
     <!-- PWA: Service Worker 등록 (http/https 환경에서만 동작, file:// 불가) -->
     <script>
