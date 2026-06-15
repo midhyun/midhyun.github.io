@@ -927,35 +927,6 @@
             margin-bottom: 14px;
         }
 
-        .pick-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .pick {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            padding: 16px 10px;
-            border-radius: 16px;
-            border: 1.5px dashed var(--leaf);
-            background: rgba(21, 70, 110, 0.05);
-            color: var(--leaf-dark);
-            font-weight: 800;
-            font-size: 0.82rem;
-        }
-
-        .pick:active {
-            background: rgba(21, 70, 110, 0.12);
-        }
-
-        .pick .pico {
-            font-size: 1.5rem;
-        }
-
         .ocr-status {
             border-radius: 14px;
             background: #eef2f7;
@@ -1071,6 +1042,8 @@
         .rc-grid .rf {
             display: flex;
             flex-direction: column;
+            min-width: 0;
+            /* 그리드 칸이 입력 고유폭 때문에 안 줄어드는 것 방지(iOS date/time 넘침) */
         }
 
         .rc-grid .rf.full {
@@ -1096,6 +1069,29 @@
 
         .rc-grid .rf input:focus {
             border-color: var(--leaf);
+        }
+
+        /* iOS: date/time/number 입력이 고유 너비로 그리드 칸을 넘치는 것 방지 */
+        .rc-grid .rf input[type="date"],
+        .rc-grid .rf input[type="time"],
+        .rc-grid .rf input[type="datetime-local"],
+        .rc-grid .rf input[type="number"] {
+            -webkit-appearance: none;
+            appearance: none;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .rc-grid .rf input[type="date"]::-webkit-date-and-time-value,
+        .rc-grid .rf input[type="time"]::-webkit-date-and-time-value {
+            text-align: left;
+            margin: 0;
+        }
+
+        .rc-grid .rf input[type="number"]::-webkit-inner-spin-button,
+        .rc-grid .rf input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         .rc-raw {
@@ -1340,11 +1336,6 @@
                 같은 영수증을 2~3장 찍어 올릴수록 정확해집니다.
             </p>
 
-            <div class="pick-row">
-                <button id="pick-camera" class="pick"><span class="pico">📸</span>카메라 촬영</button>
-                <button id="pick-gallery" class="pick"><span class="pico">🖼️</span>사진 선택</button>
-            </div>
-            <input type="file" id="ocr-camera" accept="image/*" capture="environment" class="hidden">
             <input type="file" id="ocr-gallery" accept="image/*" multiple class="hidden">
 
             <div id="ocr-thumbs" class="ocr-thumbs"></div>
@@ -2155,7 +2146,7 @@
                 setTimeout(() => $('ocr-x').focus({ preventScroll: true }), 300);  // 포커스를 시트 안으로
             };
             const closeOcr = () => closeSheet(ocrScrim);
-            $('scan-cta').onclick = openOcr;
+            $('scan-cta').onclick = () => $('ocr-gallery').click();   // 스캔 누르면 바로 사진 선택으로
             $('ocr-x').onclick = closeOcr;
             ocrScrim.addEventListener('click', (e) => { if (e.target === ocrScrim) closeOcr(); });
             enableSheetDrag(ocrScrim, closeOcr);
@@ -2167,13 +2158,6 @@
             const setProgress = (label, frac) => {
                 setStatus(`${label}<div class="bar"><i style="width:${Math.round((frac || 0) * 100)}%"></i></div>`);
             };
-            // 스캔 진행 중 입력 트리거 비활성화 (동시 실행 방지)
-            const setPickDisabled = (on) => {
-                ['pick-camera', 'pick-gallery'].forEach(id => {
-                    const b = $(id); if (b) { b.disabled = on; b.style.opacity = on ? '0.5' : ''; b.style.pointerEvents = on ? 'none' : ''; }
-                });
-            };
-
             // tesseract.js 지연 로드
             function loadTesseract() {
                 if (window.Tesseract) return Promise.resolve(window.Tesseract);
@@ -2260,7 +2244,6 @@
                 if (!list.length) { showToast('이미지 파일을 선택해주세요', 'warn'); return; }
 
                 ocrBusy = true;
-                setPickDisabled(true);
                 ocrResults.innerHTML = ''; ocrThumbs.innerHTML = ''; ocrSaveAllWrap.classList.add('hidden');
                 lastResults = [];
                 ocrStatus.classList.remove('hidden');
@@ -2326,7 +2309,6 @@
                     if (okCount > 1) ocrSaveAllWrap.classList.remove('hidden');
                 } finally {
                     ocrBusy = false;
-                    setPickDisabled(false);
                 }
             }
 
@@ -2452,11 +2434,11 @@
                 }
             };
 
-            // 파일 선택 핸들러
-            $('pick-camera').onclick = () => $('ocr-camera').click();
-            $('pick-gallery').onclick = () => $('ocr-gallery').click();
-            $('ocr-camera').addEventListener('change', (e) => { if (e.target.files.length) runOcr(e.target.files); e.target.value = ''; });
-            $('ocr-gallery').addEventListener('change', (e) => { if (e.target.files.length) runOcr(e.target.files); e.target.value = ''; });
+            // 파일 선택 핸들러: 사진을 고르면 시트를 열고 OCR 실행
+            $('ocr-gallery').addEventListener('change', (e) => {
+                if (e.target.files.length) { openOcr(); runOcr(e.target.files); }
+                e.target.value = '';
+            });
 
             // ── 월 이동 / 초기화 ──
             $('prev-month').onclick = () => { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); refresh(); };
