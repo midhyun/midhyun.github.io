@@ -594,14 +594,24 @@
             width: 100%;
             max-width: 560px;
             max-height: calc(92vh - var(--safe-top));
+            max-height: calc(92dvh - var(--safe-top));
+            overflow-x: hidden;
             overflow-y: auto;
             background: var(--paper);
             border-radius: 24px 24px 0 0;
             padding: 8px 18px calc(18px + var(--safe-bottom));
             box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
             transform: translateY(100%);
-            transition: transform 0.26s cubic-bezier(.2, .8, .2, 1);
+            transition: transform 0.26s cubic-bezier(.2, .8, .2, 1), height 0.26s cubic-bezier(.2, .8, .2, 1), border-radius 0.2s ease;
             scrollbar-width: none;
+        }
+
+        /* 위로 끌어 올렸을 때: 전체화면 확대(바닥 고정 → 빈틈 없음) */
+        .sheet.expanded {
+            height: 100%;
+            max-height: 100%;
+            border-radius: 0;
+            padding-top: calc(8px + var(--safe-top));
         }
 
         .sheet::-webkit-scrollbar {
@@ -719,6 +729,28 @@
         .field input.big {
             font-size: 1.25rem;
             font-weight: 800;
+        }
+
+        /* iOS: time/date/number 입력이 고유 너비로 칸을 넘치는 것 방지 */
+        .field input[type="time"],
+        .field input[type="date"],
+        .field input[type="datetime-local"],
+        .field input[type="number"] {
+            -webkit-appearance: none;
+            appearance: none;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .field input[type="time"]::-webkit-date-and-time-value {
+            text-align: left;
+            margin: 0;
+        }
+
+        .field input[type="number"]::-webkit-inner-spin-button,
+        .field input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         .field .hint {
@@ -1560,6 +1592,9 @@
                 scrim.classList.remove('show');
                 setTimeout(() => {
                     scrim.classList.add('hidden');
+                    // 드래그로 확대/이동된 시트를 기본 상태로 초기화(다음 오픈 대비)
+                    const sh = scrim.querySelector('.sheet');
+                    if (sh) { sh.classList.remove('expanded'); sh.style.height = ''; sh.style.transform = ''; sh.style.transition = ''; }
                     document.body.style.position = '';
                     document.body.style.top = '';
                     document.body.style.width = '';
@@ -1587,18 +1622,63 @@
                 else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
             };
 
-            // 핸들·헤더를 아래로 스와이프하면 시트 닫기
-            const enableSheetSwipeClose = (scrim, closeFn) => {
+            // 핸들·헤더 드래그: 아래로 내리면 닫기, 위로 올리면 전체화면 확대(바닥 고정)
+            const enableSheetDrag = (scrim, closeFn) => {
                 const sheet = scrim.querySelector('.sheet');
                 const handles = [scrim.querySelector('.grabber'), scrim.querySelector('.sheet-head')].filter(Boolean);
                 if (!sheet || !handles.length) return;
-                let startY = 0, dy = 0, dragging = false, sheetH = 0;
+                const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+                const SNAP = 'height .26s cubic-bezier(.2,.8,.2,1), transform .26s cubic-bezier(.2,.8,.2,1), border-radius .2s ease';
+                let startY = 0, dy = 0, dragging = false, baseH = 0, fullH = 0, defaultH = 0, expandedAtStart = false, clearTimer = null;
+
+                // 트랜지션이 끝난 뒤 인라인 height를 비워 CSS 규칙(기본/expanded)이 다시 맡도록
+                const clearLater = () => {
+                    clearTimeout(clearTimer);
+                    clearTimer = setTimeout(() => {
+                        if (dragging) return;
+                        sheet.style.height = '';
+                        sheet.style.transition = '';
+                    }, 300);
+                };
+                const toExpanded = () => {              // 전체화면으로 스냅
+                    sheet.classList.add('expanded');
+                    sheet.style.transition = SNAP;
+                    sheet.style.transform = '';
+                    sheet.style.height = fullH + 'px';
+                    clearLater();
+                };
+                const toDefault = () => {               // 기본 높이로 스냅
+                    sheet.classList.remove('expanded');
+                    sheet.style.transition = SNAP;
+                    sheet.style.transform = '';
+                    sheet.style.height = defaultH + 'px';
+                    clearLater();
+                };
+                const snapBack = () => {                // 아래로 살짝 끌다 놓음(닫기 취소)
+                    sheet.classList.remove('expanded');
+                    sheet.style.transition = SNAP;
+                    sheet.style.transform = '';
+                    sheet.style.height = '';
+                    clearLater();
+                };
+                const toClosed = () => {                // 끝까지 내린 뒤 닫기
+                    sheet.style.transition = 'transform .22s ease';
+                    sheet.style.transform = `translateY(${fullH}px)`;
+                    closeFn();                          // closeSheet가 닫힘 후 인라인 스타일/expanded 정리
+                };
 
                 const onMove = (e) => {
                     if (!dragging) return;
                     dy = e.clientY - startY;
-                    if (dy < 0) dy *= 0.25;                 // 위로는 저항을 줘서 거의 안 움직이게
-                    sheet.style.transform = `translateY(${dy}px)`;
+                    if (expandedAtStart) {              // 전체화면 상태: 아래로 끌면 높이 축소
+                        sheet.style.height = clamp(baseH - dy, defaultH, fullH) + 'px';
+                    } else if (dy <= 0) {               // 기본 상태에서 위로: 높이 확대(바닥 고정)
+                        sheet.style.transform = '';
+                        sheet.style.height = clamp(baseH - dy, defaultH, fullH) + 'px';
+                    } else {                            // 기본 상태에서 아래로: 닫기 제스처
+                        sheet.style.height = '';
+                        sheet.style.transform = `translateY(${dy}px)`;
+                    }
                     if (e.cancelable) e.preventDefault();
                 };
                 const end = () => {
@@ -1607,23 +1687,29 @@
                     window.removeEventListener('pointermove', onMove);
                     window.removeEventListener('pointerup', end);
                     window.removeEventListener('pointercancel', end);
-                    const threshold = Math.min(140, sheetH * 0.28);
-                    if (dy > threshold) {                   // 충분히 내렸으면 끝까지 내린 뒤 닫기
-                        sheet.style.transition = 'transform 0.2s ease';
-                        sheet.style.transform = `translateY(${sheetH}px)`;
-                        closeFn();
-                        setTimeout(() => { sheet.style.transform = ''; sheet.style.transition = ''; }, 280);
-                    } else {                                // 부족하면 원위치로 스냅백
-                        sheet.style.transition = '';
-                        sheet.style.transform = '';
+                    const range = Math.max(1, fullH - defaultH);
+                    const snapDist = Math.min(120, range * 0.3);
+                    if (expandedAtStart) {              // 전체화면 → 충분히 줄이면 기본으로, 아니면 유지
+                        const curH = clamp(baseH - dy, defaultH, fullH);
+                        (fullH - curH > snapDist) ? toDefault() : toExpanded();
+                    } else if (dy <= 0) {               // 위로 끌었음 → 충분하면 전체화면, 아니면 기본 복귀
+                        const curH = clamp(baseH - dy, defaultH, fullH);
+                        (curH - defaultH > snapDist) ? toExpanded() : toDefault();
+                    } else {                            // 아래로 끌었음 → 충분하면 닫기, 아니면 복귀
+                        (dy > Math.min(140, defaultH * 0.28)) ? toClosed() : snapBack();
                     }
                 };
                 const onDown = (e) => {
                     if (e.button != null && e.button !== 0) return;
                     if (e.target.closest('button, a, input, select, textarea')) return;  // 닫기(×) 등 조작 요소는 그대로 동작
+                    clearTimeout(clearTimer);
                     dragging = true; dy = 0;
                     startY = e.clientY;
-                    sheetH = sheet.offsetHeight;
+                    expandedAtStart = sheet.classList.contains('expanded');
+                    fullH = scrim.clientHeight;                 // 뷰포트 높이(=전체화면 높이)
+                    baseH = sheet.offsetHeight;
+                    if (!expandedAtStart) defaultH = baseH;     // 기본 높이 기억
+                    if (!defaultH) defaultH = Math.round(fullH * 0.6);
                     sheet.style.transition = 'none';
                     window.addEventListener('pointermove', onMove, { passive: false });
                     window.addEventListener('pointerup', end);
@@ -1757,7 +1843,7 @@
             $('entry-close').onclick = closeEntrySheet;
             $('entry-x').onclick = closeEntrySheet;
             entryScrim.addEventListener('click', (e) => { if (e.target === entryScrim) closeEntrySheet(); });
-            enableSheetSwipeClose(entryScrim, closeEntrySheet);
+            enableSheetDrag(entryScrim, closeEntrySheet);
 
             // ════════════════════════════════════════════════════════════════════
             //  CSV / 백업 / 복원  (데스크톱 버전과 동일 포맷)
@@ -2072,7 +2158,7 @@
             $('scan-cta').onclick = openOcr;
             $('ocr-x').onclick = closeOcr;
             ocrScrim.addEventListener('click', (e) => { if (e.target === ocrScrim) closeOcr(); });
-            enableSheetSwipeClose(ocrScrim, closeOcr);
+            enableSheetDrag(ocrScrim, closeOcr);
 
             const setStatus = (html, isErr) => {
                 ocrStatus.className = `ocr-status${isErr ? ' err' : ''}`;
